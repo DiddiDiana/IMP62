@@ -1,13 +1,46 @@
-var b1 = document.getElementById("button");
-var h2 = document.createElement("h2");
-var titel = document.createTextNode("Ich bin noch eine Überschrift!");
+//-----------Einleitung-----------//
+function changeHTMLEinleitung() {
+    //----------erstelle Elemente------------//	
+    //erstelle Body, da der aktuelle ersetzt wird
+    var newMain = document.createElement("div");
+    logo = new Image; //erzeuge Image inkl. Größe
+    var buttonGame = document.createElement("input");
 
-h2.className = "h2 font-weight-normal";
-h2.appendChild(titel);
+    //------------Klassen--------------//
+    logo.className = "mb-4";
+    buttonGame.className = "btn btn-lg btn-block";
 
-var Ausgabebereich = document.getElementById("content");
+    //---------weitere Eigenschaften & Bezeichnungen------------//
+    newMain.id = "newMain";
+    logo.src = "/img/Logo_Planspiel.png";
+    buttonGame.type = "button";
+	buttonGame.value = "Planspiel starten";
 
-b1.onclick = function () {
-/*     window.alert("Der Button wurde gedrückt!"); */
-    Ausgabebereich.appendChild(h2);
-} 
+    //----------Zuweisungen für Anzeige-----------// 
+    newMain.appendChild(logo);
+    newMain.appendChild(buttonGame);
+    //lege Ausgabebereich fest und zeige neuen Main-Inhalt dafür an
+	var Ausgabebereich = document.getElementById("main");
+    Ausgabebereich.parentNode.replaceChild(newMain, Ausgabebereich);
+    
+
+    buttonGame.onclick = function () {
+        changeHTMLGame();
+    }
+}//ENDE Einleitung
+
+//wird DOM geladen, tausche das HTML aus
+document.addEventListener('DOMContentLoaded', changeHTMLEinleitung);
+
+//-----------Hauptspiel-----------//
+function changeHTMLGame() {
+
+    $.get('index.html', function (data) {
+		$('body').html(data);
+    })
+}//ENDE Game
+
+//-----------Auswertung-----------//
+function changeHTMLAuswertung() {
+
+}//ENDE Auswertung
