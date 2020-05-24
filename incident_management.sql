@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 23. Mai 2020 um 08:28
+-- Erstellungszeit: 24. Mai 2020 um 21:02
 -- Server-Version: 10.4.11-MariaDB
 -- PHP-Version: 7.4.6
 
@@ -101,19 +101,26 @@ CREATE TABLE `incident` (
   `incID` int(11) NOT NULL,
   `aufgabenID` int(11) NOT NULL,
   `fealligkeit` int(11) NOT NULL COMMENT 'Fälligkeit in Runden vom Erstellungsdatum aus.',
-  `benoetigteFachlFaehigkeit` int(11) NOT NULL
+  `benoetigteFachlFaehigkeit` int(11) NOT NULL,
+  `erstellungsdatum` date DEFAULT NULL,
+  `status` enum('neu','warteschlange','in arbeit','erledigt','') NOT NULL,
+  `prioritaet` enum('niedrig','mittel','hoch','kritisch','') NOT NULL,
+  `berbeitungsstand` int(11) NOT NULL,
+  `kundenzufriedenheit` int(11) NOT NULL,
+  `bearbeitungsdauer` int(11) NOT NULL,
+  `bearbeiter` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Daten für Tabelle `incident`
 --
 
-INSERT INTO `incident` (`incID`, `aufgabenID`, `fealligkeit`, `benoetigteFachlFaehigkeit`) VALUES
-(1, 1, 1, 1),
-(2, 2, 1, 1),
-(3, 4, 1, 3),
-(4, 3, 3, 2),
-(5, 7, 2, 3);
+INSERT INTO `incident` (`incID`, `aufgabenID`, `fealligkeit`, `benoetigteFachlFaehigkeit`, `erstellungsdatum`, `status`, `prioritaet`, `berbeitungsstand`, `kundenzufriedenheit`, `bearbeitungsdauer`, `bearbeiter`) VALUES
+(1, 1, 1, 1, NULL, 'neu', 'hoch', 0, 0, 0, NULL),
+(2, 2, 1, 1, NULL, 'neu', 'mittel', 0, 0, 0, NULL),
+(3, 4, 1, 3, NULL, 'neu', 'niedrig', 0, 0, 0, NULL),
+(4, 3, 3, 2, NULL, 'neu', 'hoch', 0, 0, 0, NULL),
+(5, 7, 2, 3, NULL, 'neu', 'kritisch', 0, 0, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -123,16 +130,17 @@ INSERT INTO `incident` (`incID`, `aufgabenID`, `fealligkeit`, `benoetigteFachlFa
 
 CREATE TABLE `interneaufgaben` (
   `aufgabe` int(11) NOT NULL,
-  `bearbeitungsdauer` int(11) NOT NULL COMMENT 'Bearbeitungsdauer in stunden.'
+  `bearbeitungsdauer` int(11) NOT NULL COMMENT 'Bearbeitungsdauer in stunden.',
+  `bearbeiter` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Daten für Tabelle `interneaufgaben`
 --
 
-INSERT INTO `interneaufgaben` (`aufgabe`, `bearbeitungsdauer`) VALUES
-(5, 1),
-(6, 3);
+INSERT INTO `interneaufgaben` (`aufgabe`, `bearbeitungsdauer`, `bearbeiter`) VALUES
+(5, 1, NULL),
+(6, 3, NULL);
 
 -- --------------------------------------------------------
 
