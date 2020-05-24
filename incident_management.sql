@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 22. Mai 2020 um 21:32
+-- Erstellungszeit: 23. Mai 2020 um 08:28
 -- Server-Version: 10.4.11-MariaDB
 -- PHP-Version: 7.4.6
 
@@ -39,10 +39,32 @@ CREATE TABLE `aufgaben` (
 INSERT INTO `aufgaben` (`aufgabenID`, `title`) VALUES
 (1, 'User gesperrt'),
 (2, 'User anlegen'),
-(3, 'Microsoft Office Fehler beheben'),
-(4, 'Microsoft Office update installieren'),
+(3, 'Softwarebug beheben'),
+(4, 'Softwareupdate installieren'),
 (5, 'Server updaten'),
-(6, 'Firewall kontrollieren');
+(6, 'Server konfigurieren'),
+(7, 'Fehlermeldung auf dem Server');
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `fachlichefaehigkeiten`
+--
+
+CREATE TABLE `fachlichefaehigkeiten` (
+  `level` int(11) NOT NULL,
+  `bezeichnung` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Daten für Tabelle `fachlichefaehigkeiten`
+--
+
+INSERT INTO `fachlichefaehigkeiten` (`level`, `bezeichnung`) VALUES
+(1, 'Beginner'),
+(2, 'Gelernter'),
+(3, 'Profi'),
+(4, 'Experte');
 
 -- --------------------------------------------------------
 
@@ -52,21 +74,22 @@ INSERT INTO `aufgaben` (`aufgabenID`, `title`) VALUES
 
 CREATE TABLE `faehigkeiten` (
   `faehigkeitenID` int(11) NOT NULL,
-  `name` text NOT NULL
+  `name` text NOT NULL,
+  `typ` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Daten für Tabelle `faehigkeiten`
 --
 
-INSERT INTO `faehigkeiten` (`faehigkeitenID`, `name`) VALUES
-(1, 'Active Directory'),
-(2, 'Netzwerk'),
-(3, 'Server'),
-(4, 'Microsoft Office'),
-(5, 'Ordentlich'),
-(6, 'Teamfaehig'),
-(7, 'Kreativ');
+INSERT INTO `faehigkeiten` (`faehigkeitenID`, `name`, `typ`) VALUES
+(1, 'Benutzerverwaltung', 'fachliche'),
+(2, 'Programmieren', 'fachliche'),
+(3, 'Server', 'fachliche'),
+(4, 'Projektierung', 'fachliche'),
+(5, 'Ordentlich', 'persoenliche'),
+(6, 'Teamfaehig', 'persoenliche'),
+(7, 'Kreativ', 'persoenliche');
 
 -- --------------------------------------------------------
 
@@ -88,8 +111,28 @@ CREATE TABLE `incident` (
 INSERT INTO `incident` (`incID`, `aufgabenID`, `fealligkeit`, `benoetigteFachlFaehigkeit`) VALUES
 (1, 1, 1, 1),
 (2, 2, 1, 1),
-(3, 4, 1, 4),
-(4, 3, 3, 4);
+(3, 4, 1, 3),
+(4, 3, 3, 2),
+(5, 7, 2, 3);
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `interneaufgaben`
+--
+
+CREATE TABLE `interneaufgaben` (
+  `aufgabe` int(11) NOT NULL,
+  `bearbeitungsdauer` int(11) NOT NULL COMMENT 'Bearbeitungsdauer in stunden.'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Daten für Tabelle `interneaufgaben`
+--
+
+INSERT INTO `interneaufgaben` (`aufgabe`, `bearbeitungsdauer`) VALUES
+(5, 1),
+(6, 3);
 
 -- --------------------------------------------------------
 
@@ -108,8 +151,8 @@ CREATE TABLE `kategorie` (
 --
 
 INSERT INTO `kategorie` (`kategorieID`, `name`, `fachlicheFaehigkeit`) VALUES
-(1, 'Benutzer Probleme', 1),
-(2, 'Netzwerkprobleme', 2),
+(1, 'Benutzerverwaltung', 1),
+(2, 'Programmieren', 2),
 (3, 'Serveradministration', 3);
 
 -- --------------------------------------------------------
@@ -160,6 +203,25 @@ INSERT INTO `nutzer` (`nutzerID`, `name`, `passwort`, `rechte`, `session`) VALUE
 -- --------------------------------------------------------
 
 --
+-- Tabellenstruktur für Tabelle `persoenlichefaehigkeiten`
+--
+
+CREATE TABLE `persoenlichefaehigkeiten` (
+  `faehigkeit` int(11) NOT NULL,
+  `auswirkung` int(11) NOT NULL COMMENT 'Zeitliche negative oder positive Auswirkung auf die Bearbeitung.'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Daten für Tabelle `persoenlichefaehigkeiten`
+--
+
+INSERT INTO `persoenlichefaehigkeiten` (`faehigkeit`, `auswirkung`) VALUES
+(5, -1),
+(7, 1);
+
+-- --------------------------------------------------------
+
+--
 -- Tabellenstruktur für Tabelle `spiel`
 --
 
@@ -169,15 +231,19 @@ CREATE TABLE `spiel` (
   `runde` int(11) DEFAULT NULL COMMENT 'Rundenanzahl',
   `anfang` datetime DEFAULT NULL COMMENT 'Zeit des Anfangs',
   `ende` datetime DEFAULT NULL COMMENT 'Zeit des Endes',
-  `spieler` int(11) NOT NULL COMMENT 'ID des Spielers'
+  `spieler` int(11) NOT NULL COMMENT 'ID des Spielers',
+  `incInFaelligkeit` int(11) NOT NULL COMMENT 'Anzahl der Incidents die in Faelligkeit bearbeitet wurden.',
+  `incAusFaelligkeit` int(11) NOT NULL COMMENT 'Anzahl der Incidents auserhalb der Falligkeit.',
+  `durchKundenbewertung` int(11) NOT NULL COMMENT 'Durchschnittliche Kundenbewertung.',
+  `zaehler` int(11) NOT NULL COMMENT 'Erreichter Zahelerstand.'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Spieltabelle';
 
 --
 -- Daten für Tabelle `spiel`
 --
 
-INSERT INTO `spiel` (`spielID`, `spielphase`, `runde`, `anfang`, `ende`, `spieler`) VALUES
-(1, 'Einleitung', NULL, NULL, NULL, 1);
+INSERT INTO `spiel` (`spielID`, `spielphase`, `runde`, `anfang`, `ende`, `spieler`, `incInFaelligkeit`, `incAusFaelligkeit`, `durchKundenbewertung`, `zaehler`) VALUES
+(1, 'Einleitung', NULL, NULL, NULL, 1, 0, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -196,8 +262,8 @@ CREATE TABLE `verbesserung` (
 --
 
 INSERT INTO `verbesserung` (`verbesserungID`, `bezeichnung`, `vorraussetzung`) VALUES
-(1, 'Active Directory Level 2', 'Active Directory Level 1'),
-(2, 'Active Directory Level 3', 'Active Directory Level 2');
+(1, 'Programmierung Level 2', 'Programmierung Level 1'),
+(2, 'Programmierung Level 3', 'Programmierung Level 2');
 
 --
 -- Indizes der exportierten Tabellen
@@ -208,6 +274,12 @@ INSERT INTO `verbesserung` (`verbesserungID`, `bezeichnung`, `vorraussetzung`) V
 --
 ALTER TABLE `aufgaben`
   ADD PRIMARY KEY (`aufgabenID`);
+
+--
+-- Indizes für die Tabelle `fachlichefaehigkeiten`
+--
+ALTER TABLE `fachlichefaehigkeiten`
+  ADD PRIMARY KEY (`level`);
 
 --
 -- Indizes für die Tabelle `faehigkeiten`
@@ -222,6 +294,12 @@ ALTER TABLE `incident`
   ADD PRIMARY KEY (`incID`),
   ADD KEY `aufgabenID` (`aufgabenID`),
   ADD KEY `benoetigteFachlFaehigkeit` (`benoetigteFachlFaehigkeit`);
+
+--
+-- Indizes für die Tabelle `interneaufgaben`
+--
+ALTER TABLE `interneaufgaben`
+  ADD PRIMARY KEY (`aufgabe`);
 
 --
 -- Indizes für die Tabelle `kategorie`
@@ -241,6 +319,12 @@ ALTER TABLE `mitarbeiter`
 --
 ALTER TABLE `nutzer`
   ADD PRIMARY KEY (`nutzerID`);
+
+--
+-- Indizes für die Tabelle `persoenlichefaehigkeiten`
+--
+ALTER TABLE `persoenlichefaehigkeiten`
+  ADD PRIMARY KEY (`faehigkeit`);
 
 --
 -- Indizes für die Tabelle `spiel`
@@ -263,7 +347,7 @@ ALTER TABLE `verbesserung`
 -- AUTO_INCREMENT für Tabelle `aufgaben`
 --
 ALTER TABLE `aufgaben`
-  MODIFY `aufgabenID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `aufgabenID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT für Tabelle `spiel`
@@ -283,10 +367,22 @@ ALTER TABLE `incident`
   ADD CONSTRAINT `incident_ibfk_2` FOREIGN KEY (`benoetigteFachlFaehigkeit`) REFERENCES `faehigkeiten` (`faehigkeitenID`);
 
 --
+-- Constraints der Tabelle `interneaufgaben`
+--
+ALTER TABLE `interneaufgaben`
+  ADD CONSTRAINT `interneaufgaben_ibfk_1` FOREIGN KEY (`aufgabe`) REFERENCES `aufgaben` (`aufgabenID`);
+
+--
 -- Constraints der Tabelle `kategorie`
 --
 ALTER TABLE `kategorie`
   ADD CONSTRAINT `kategorie_ibfk_1` FOREIGN KEY (`fachlicheFaehigkeit`) REFERENCES `faehigkeiten` (`faehigkeitenID`);
+
+--
+-- Constraints der Tabelle `persoenlichefaehigkeiten`
+--
+ALTER TABLE `persoenlichefaehigkeiten`
+  ADD CONSTRAINT `persoenlichefaehigkeiten_ibfk_1` FOREIGN KEY (`faehigkeit`) REFERENCES `faehigkeiten` (`faehigkeitenID`);
 
 --
 -- Constraints der Tabelle `spiel`
