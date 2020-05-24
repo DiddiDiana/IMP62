@@ -1,0 +1,33 @@
+/* Elemente */
+html, body, #newMain{
+  height: 100%;
+}
+
+body {
+  min-height:100%; 
+  position:relative; 
+  padding-bottom: 2em;
+}
+
+.btn {
+  color: #fff;
+  background-color: #336666;
+  border-color: #336666;
+}
+
+.box:hover{
+  color: #fff;
+}
+
+.spielphase{
+  border: 1px solid #d3d3d3;
+  display: inline;
+  width: auto;
+}
+
+.card-title{
+  background-color: #336666;
+  margin: 0 -15px 0 -15px;
+  padding: 2px 0 2px 0;
+  text-align: center;
+}

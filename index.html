@@ -6,24 +6,61 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link href="css/bootstrap.min.css" rel="stylesheet">
 	<link href="css/basisstyle.css" rel="stylesheet">
+	<!-- Icon-Bibliothek https://fontawesome.com/icons?d=gallery -->
+	<link href="fontawesome/css/all.min.css" rel="stylesheet">
 
-	<title>Testseite</title>
-
+	<title>Planspiel Incident Management</title>
+	
 	<!-- CDN jQuery (wird für Bootstrap JavaScript-Plugins benötigt) -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-
 
 </head>
 
 <body id="body" class="m-4">
-	<!-- main beinhaltet Grundaufbau -->
+	<!-- main beinhaltet Planspielbrett -->
 	<div id="main" >	<!-- für Austausch body-->
 		<header>
-			<h1 class="text-success">Ich bin eine Überschrift!</h1>
+			<div class="row">
+				<div class="col-md-4">
+					<img src="img/Logo_Planspiel.png">
+				</div>
+				<div class="col-md-3">
+					<label class="btn box"><i class="far fa-clock"></i></label>
+					<!-- JS-Variable eingeben und Spielphase anzeigen -->
+					<label class="form-control spielphase" for="">Spielphase</label>
+				</div>
+				<div class="col-md-4">
+					<img src="img/Smiley_grün_512px.png" width="50" height="auto">
+					<label for=""></label>
+					<img src="img/Smiley_rot_512px.png" width="50" height="auto">
+					<label for=""></label>
+				</div>
+				<div class="col">
+					<button class="btn"><i class="fas fa-power-off"></i></button>
+				</div>
+			</div>
 		</header>
 		<main id="content">
-			<button type="button" id="button" class="btn btn-outline-info btn-lg">drücken</button>
-			<!-- Platzhalter Inhalt -->
+			<div class="row mx-2 my-4">
+				<div class="col-md-4 card">
+					<h3 class="card-title">Informationsbereich</h3>
+					<div class="card-body">
+						<p class="card-text">Test</p>
+					</div>
+				</div>
+				<div class="col-md-4 card">
+					<h3 class="card-title">Arbeitsbereich</h3>
+					<div class="card-body">
+						<p class="card-text">Test</p>
+					</div>
+				</div>
+				<div class="col-md-4 card">
+					<h3 class="card-title">Incidentbereich</h3>
+					<div class="card-body">
+						<p class="card-text">Test</p>
+					</div>
+				</div>
+			</div>
 		</main>
 		<footer class="footer text-center fixed-bottom p-3">
 			<span>Made by Diana Quaschni and Benjamin Lehnert &copy; 2020</span>
