@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="UTF-8">
+  <title>Suchanfrage an eine Datenbank über AJAX senden und empfangen</title>
+
+  <script>
+  // Ein XMLHTTP-Request-Objekt erzeugen.
+  var xhr = new XMLHttpRequest();
+
+  function datenSenden() {
+   // Den Inhalt des Eingabefeldes auslesen
+   var suchbegriff = document.getElementById("eingabe").value;
+
+   // Überprüfen ob der Suchbegriff mehr als 3 Zeichen enthält.
+   //if (suchbegriff.length > 3) {
+
+    // XMLHTTP-Request zur Datei: antwort.php öffnen und den Suchbegriff anhängen.
+    xhr.open("GET", "db.php", true);
+
+    // XMLHTTP-Request senden.
+    xhr.send();
+
+    // Auf eine Antwort warten
+    xhr.onreadystatechange = function() {
+
+     // Überprüfen ob der Server eine Antwort geliefert hat.
+     if (xhr.readyState == 4 && xhr.status == 200) {
+
+      // Die Antwort des Servers ausgeben
+      document.getElementById("ausgabe").innerHTML = xhr.responseText;
+     }
+    }
+   }
+  //}
+  </script>
+
+ </head>
+<body>
+
+<input type="text" id="eingabe" placeholder="Suchbegriff eingeben">
+
+<button onClick="datenSenden()">suchen</button>
+
+<div id="ausgabe"></div>
+
+</body>
+</html> 
