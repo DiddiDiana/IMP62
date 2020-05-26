@@ -9,6 +9,15 @@ body {
   padding-bottom: 2em;
 }
 
+#main{
+  margin-bottom: 60px;
+}
+footer{
+  background-color: #336666;
+  color: #fff;
+}
+
+/* Button Allgemein*/
 .btn {
   color: #fff;
   background-color: #336666;
@@ -27,7 +36,32 @@ body {
 
 .card-title{
   background-color: #336666;
+  color: #fff;
   margin: 0 -15px 0 -15px;
   padding: 2px 0 2px 0;
   text-align: center;
 }
+
+.card-body{
+  border: 1px solid;
+  margin: 20px 0 20px 0;
+}
+
+.firstLevel{
+  background-color: #a9a9a9;
+  text-align: center;
+  max-height: 100px;
+  max-width: 100px;
+}
+
+.secondLevel{
+  background-color: #d3d3d3;
+  text-align: center;
+  max-height: 100px;
+  max-width: 100px;
+}
+
+#arbeitsbereich ul{
+  list-style: none;
+}
+
