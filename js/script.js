@@ -75,11 +75,13 @@ function changeHTMLEinleitung() {
             var spiel = JSON.parse(spielXhr.responseText);
             }
         }
+      
         changeHTMLGame();
     }
 }//ENDE Einleitung
 
 //wird DOM geladen, tausche das HTML aus
+
 document.addEventListener('DOMContentLoaded', changeHTMLEinleitung);
 
 //-----------Hauptspiel-----------//
