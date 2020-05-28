@@ -101,34 +101,27 @@ function changeHTMLGame() {
         var secondLevelMitarbeiter03 = document.getElementById("secondLevel03");
 
         //-------eine zentrale Methode wäre sinnvoll -> funktioniert nicht-------//
-/*         function MAdatenAnzeigen(n){
-            document.getElementById("MAposition").textContent = supportMitarbeiter[n].position + "-Support";
-            document.getElementById("MAname").textContent = "Mitarbeiter: " + supportMitarbeiter[n].name;
+         function MAdatenAnzeigen(daten){
+            document.getElementById("MAposition").textContent = daten.position + "-Support";
+            document.getElementById("MAname").textContent = "Mitarbeiter: " + daten.name;
             
         } 
-        document.getElementById("firstLevel01").onclick = MAdatenAnzeigen(0);
-        document.getElementById("secondLevel01").onclick = MAdatenAnzeigen(1);*/
-
         firstLevelMitarbeiter01.onclick = function (){
-            document.getElementById("MAposition").textContent = supportMitarbeiter[0].position + "-Support";
-            document.getElementById("MAname").textContent = "Mitarbeiter: " + supportMitarbeiter[0].name;
+           var mitarbeiter = supportMitarbeiter[0];
+           MAdatenAnzeigen(mitarbeiter);
         } 
         secondLevelMitarbeiter01.onclick = function (){
-            document.getElementById("MAposition").textContent = supportMitarbeiter[1].position + "-Support";
-            document.getElementById("MAname").textContent = "Mitarbeiter: " + supportMitarbeiter[1].name;
-
+            var mitarbeiter = supportMitarbeiter[1];
+            MAdatenAnzeigen(mitarbeiter);
         } 
         secondLevelMitarbeiter02.onclick = function (){
-            document.getElementById("MAposition").textContent = supportMitarbeiter[2].position + "-Support";
-            document.getElementById("MAname").textContent = "Mitarbeiter: " + supportMitarbeiter[2].name;
-
-        } 
+            var mitarbeiter = supportMitarbeiter[2];
+            MAdatenAnzeigen(mitarbeiter);
+        }
         secondLevelMitarbeiter03.onclick = function (){
-            document.getElementById("MAposition").textContent = supportMitarbeiter[3].position + "-Support";
-            document.getElementById("MAname").textContent = "Mitarbeiter: " + supportMitarbeiter[3].name;
-
-        }  
-
+            var mitarbeiter = supportMitarbeiter[3];
+            MAdatenAnzeigen(mitarbeiter);
+        } 
     })
 
 }//ENDE Game
