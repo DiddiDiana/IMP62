@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 24. Mai 2020 um 21:02
+-- Erstellungszeit: 28. Mai 2020 um 08:10
 -- Server-Version: 10.4.11-MariaDB
 -- PHP-Version: 7.4.6
 
@@ -48,6 +48,28 @@ INSERT INTO `aufgaben` (`aufgabenID`, `title`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Tabellenstruktur für Tabelle `fachfaehigkeitzuordnen`
+--
+
+CREATE TABLE `fachfaehigkeitzuordnen` (
+  `MitarbeiterID` int(11) NOT NULL,
+  `fachlicheFaehigkeit` int(11) NOT NULL,
+  `level` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Daten für Tabelle `fachfaehigkeitzuordnen`
+--
+
+INSERT INTO `fachfaehigkeitzuordnen` (`MitarbeiterID`, `fachlicheFaehigkeit`, `level`) VALUES
+(2, 1, 1),
+(3, 3, 3),
+(4, 1, 4),
+(5, 2, 3);
+
+-- --------------------------------------------------------
+
+--
 -- Tabellenstruktur für Tabelle `fachlichefaehigkeiten`
 --
 
@@ -83,6 +105,7 @@ CREATE TABLE `faehigkeiten` (
 --
 
 INSERT INTO `faehigkeiten` (`faehigkeitenID`, `name`, `typ`) VALUES
+(0, 'keine Fahigkeit', 'keine'),
 (1, 'Benutzerverwaltung', 'fachliche'),
 (2, 'Programmieren', 'fachliche'),
 (3, 'Server', 'fachliche'),
@@ -105,22 +128,23 @@ CREATE TABLE `incident` (
   `erstellungsdatum` date DEFAULT NULL,
   `status` enum('neu','warteschlange','in arbeit','erledigt','') NOT NULL,
   `prioritaet` enum('niedrig','mittel','hoch','kritisch','') NOT NULL,
-  `berbeitungsstand` int(11) NOT NULL,
+  `bearbeitungsstand` int(11) NOT NULL,
   `kundenzufriedenheit` int(11) NOT NULL,
   `bearbeitungsdauer` int(11) NOT NULL,
-  `bearbeiter` text DEFAULT NULL
+  `bearbeiter` text DEFAULT NULL,
+  `kategorie` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Daten für Tabelle `incident`
 --
 
-INSERT INTO `incident` (`incID`, `aufgabenID`, `fealligkeit`, `benoetigteFachlFaehigkeit`, `erstellungsdatum`, `status`, `prioritaet`, `berbeitungsstand`, `kundenzufriedenheit`, `bearbeitungsdauer`, `bearbeiter`) VALUES
-(1, 1, 1, 1, NULL, 'neu', 'hoch', 0, 0, 0, NULL),
-(2, 2, 1, 1, NULL, 'neu', 'mittel', 0, 0, 0, NULL),
-(3, 4, 1, 3, NULL, 'neu', 'niedrig', 0, 0, 0, NULL),
-(4, 3, 3, 2, NULL, 'neu', 'hoch', 0, 0, 0, NULL),
-(5, 7, 2, 3, NULL, 'neu', 'kritisch', 0, 0, 0, NULL);
+INSERT INTO `incident` (`incID`, `aufgabenID`, `fealligkeit`, `benoetigteFachlFaehigkeit`, `erstellungsdatum`, `status`, `prioritaet`, `bearbeitungsstand`, `kundenzufriedenheit`, `bearbeitungsdauer`, `bearbeiter`, `kategorie`) VALUES
+(1, 1, 1, 0, NULL, 'neu', 'hoch', 0, 0, 0, NULL, 0),
+(2, 2, 1, 0, NULL, 'neu', 'mittel', 0, 0, 0, NULL, 0),
+(3, 4, 1, 0, NULL, 'neu', 'niedrig', 0, 0, 0, NULL, 0),
+(4, 3, 3, 0, NULL, 'neu', 'hoch', 0, 0, 0, NULL, 0),
+(5, 7, 2, 0, NULL, 'neu', 'kritisch', 0, 0, 0, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -150,18 +174,18 @@ INSERT INTO `interneaufgaben` (`aufgabe`, `bearbeitungsdauer`, `bearbeiter`) VAL
 
 CREATE TABLE `kategorie` (
   `kategorieID` int(11) NOT NULL,
-  `name` text NOT NULL,
-  `fachlicheFaehigkeit` int(11) NOT NULL
+  `name` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Daten für Tabelle `kategorie`
 --
 
-INSERT INTO `kategorie` (`kategorieID`, `name`, `fachlicheFaehigkeit`) VALUES
-(1, 'Benutzerverwaltung', 1),
-(2, 'Programmieren', 2),
-(3, 'Serveradministration', 3);
+INSERT INTO `kategorie` (`kategorieID`, `name`) VALUES
+(0, 'keine Kategorie'),
+(1, 'Benutzerverwaltung'),
+(2, 'Programmieren'),
+(3, 'Serveradministration');
 
 -- --------------------------------------------------------
 
@@ -172,20 +196,20 @@ INSERT INTO `kategorie` (`kategorieID`, `name`, `fachlicheFaehigkeit`) VALUES
 CREATE TABLE `mitarbeiter` (
   `mitarbeiterID` int(11) NOT NULL,
   `name` text NOT NULL COMMENT 'Name des Mitarbeiters',
-  `position` text NOT NULL COMMENT 'Position des Mitarbeiters'
+  `position` text NOT NULL COMMENT 'Position des Mitarbeiters',
+  `kategorie` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Daten für Tabelle `mitarbeiter`
 --
 
-INSERT INTO `mitarbeiter` (`mitarbeiterID`, `name`, `position`) VALUES
-(1, 'Carl', 'IT-Leiter'),
-(2, 'Maik', '1st-Level'),
-(3, 'Andi', '2nd-Level'),
-(4, 'Olaf', '2nd-Level'),
-(5, 'Peter', '2nd-Level'),
-(6, 'Uwe', '2nd-Level');
+INSERT INTO `mitarbeiter` (`mitarbeiterID`, `name`, `position`, `kategorie`) VALUES
+(1, 'Carl', 'IT-Leiter', 0),
+(2, 'Maik', '1st-Level', 0),
+(3, 'Andi', '2nd-Level', 3),
+(4, 'Olaf', '2nd-Level', 1),
+(5, 'Peter', '2nd-Level', 2);
 
 -- --------------------------------------------------------
 
@@ -226,6 +250,25 @@ CREATE TABLE `persoenlichefaehigkeiten` (
 INSERT INTO `persoenlichefaehigkeiten` (`faehigkeit`, `auswirkung`) VALUES
 (5, -1),
 (7, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `persofaehigkeitzuordnen`
+--
+
+CREATE TABLE `persofaehigkeitzuordnen` (
+  `MitarbeiterID` int(11) NOT NULL,
+  `persoenlicheFaehigkeit` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Daten für Tabelle `persofaehigkeitzuordnen`
+--
+
+INSERT INTO `persofaehigkeitzuordnen` (`MitarbeiterID`, `persoenlicheFaehigkeit`) VALUES
+(3, 5),
+(4, 7);
 
 -- --------------------------------------------------------
 
@@ -301,7 +344,8 @@ ALTER TABLE `faehigkeiten`
 ALTER TABLE `incident`
   ADD PRIMARY KEY (`incID`),
   ADD KEY `aufgabenID` (`aufgabenID`),
-  ADD KEY `benoetigteFachlFaehigkeit` (`benoetigteFachlFaehigkeit`);
+  ADD KEY `benoetigteFachlFaehigkeit` (`benoetigteFachlFaehigkeit`),
+  ADD KEY `kategorie` (`kategorie`);
 
 --
 -- Indizes für die Tabelle `interneaufgaben`
@@ -313,14 +357,14 @@ ALTER TABLE `interneaufgaben`
 -- Indizes für die Tabelle `kategorie`
 --
 ALTER TABLE `kategorie`
-  ADD PRIMARY KEY (`kategorieID`),
-  ADD KEY `fachlicheFaehigkeit` (`fachlicheFaehigkeit`);
+  ADD PRIMARY KEY (`kategorieID`);
 
 --
 -- Indizes für die Tabelle `mitarbeiter`
 --
 ALTER TABLE `mitarbeiter`
-  ADD PRIMARY KEY (`mitarbeiterID`);
+  ADD PRIMARY KEY (`mitarbeiterID`),
+  ADD KEY `kategorie` (`kategorie`);
 
 --
 -- Indizes für die Tabelle `nutzer`
@@ -333,6 +377,13 @@ ALTER TABLE `nutzer`
 --
 ALTER TABLE `persoenlichefaehigkeiten`
   ADD PRIMARY KEY (`faehigkeit`);
+
+--
+-- Indizes für die Tabelle `persofaehigkeitzuordnen`
+--
+ALTER TABLE `persofaehigkeitzuordnen`
+  ADD KEY `persoenlicheFaehigkeit` (`persoenlicheFaehigkeit`),
+  ADD KEY `persofaehigkeitzuordnen_ibfk_1` (`MitarbeiterID`);
 
 --
 -- Indizes für die Tabelle `spiel`
@@ -372,7 +423,8 @@ ALTER TABLE `spiel`
 --
 ALTER TABLE `incident`
   ADD CONSTRAINT `incident_ibfk_1` FOREIGN KEY (`aufgabenID`) REFERENCES `aufgaben` (`aufgabenID`),
-  ADD CONSTRAINT `incident_ibfk_2` FOREIGN KEY (`benoetigteFachlFaehigkeit`) REFERENCES `faehigkeiten` (`faehigkeitenID`);
+  ADD CONSTRAINT `incident_ibfk_2` FOREIGN KEY (`benoetigteFachlFaehigkeit`) REFERENCES `faehigkeiten` (`faehigkeitenID`),
+  ADD CONSTRAINT `incident_ibfk_3` FOREIGN KEY (`kategorie`) REFERENCES `kategorie` (`kategorieID`);
 
 --
 -- Constraints der Tabelle `interneaufgaben`
@@ -381,16 +433,23 @@ ALTER TABLE `interneaufgaben`
   ADD CONSTRAINT `interneaufgaben_ibfk_1` FOREIGN KEY (`aufgabe`) REFERENCES `aufgaben` (`aufgabenID`);
 
 --
--- Constraints der Tabelle `kategorie`
+-- Constraints der Tabelle `mitarbeiter`
 --
-ALTER TABLE `kategorie`
-  ADD CONSTRAINT `kategorie_ibfk_1` FOREIGN KEY (`fachlicheFaehigkeit`) REFERENCES `faehigkeiten` (`faehigkeitenID`);
+ALTER TABLE `mitarbeiter`
+  ADD CONSTRAINT `mitarbeiter_ibfk_1` FOREIGN KEY (`kategorie`) REFERENCES `kategorie` (`kategorieID`);
 
 --
 -- Constraints der Tabelle `persoenlichefaehigkeiten`
 --
 ALTER TABLE `persoenlichefaehigkeiten`
   ADD CONSTRAINT `persoenlichefaehigkeiten_ibfk_1` FOREIGN KEY (`faehigkeit`) REFERENCES `faehigkeiten` (`faehigkeitenID`);
+
+--
+-- Constraints der Tabelle `persofaehigkeitzuordnen`
+--
+ALTER TABLE `persofaehigkeitzuordnen`
+  ADD CONSTRAINT `persofaehigkeitzuordnen_ibfk_1` FOREIGN KEY (`MitarbeiterID`) REFERENCES `mitarbeiter` (`mitarbeiterID`),
+  ADD CONSTRAINT `persofaehigkeitzuordnen_ibfk_2` FOREIGN KEY (`persoenlicheFaehigkeit`) REFERENCES `persoenlichefaehigkeiten` (`faehigkeit`);
 
 --
 -- Constraints der Tabelle `spiel`
