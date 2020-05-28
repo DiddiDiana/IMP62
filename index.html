@@ -11,9 +11,6 @@
 
 
 	<title>Planspiel Incident Management</title>
-	
-	<!-- CDN jQuery (wird für Bootstrap JavaScript-Plugins benötigt) -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
 </head>
 
@@ -51,8 +48,8 @@
 							<div class="d-flex">
 								<img src="img/Mitarbeiter_64px.png" class="mr-2 mb-2">
 								<div>
-									<h6>1st-Level-Support</h6><!-- Supportrolle des Mitarbeiters -->
-									<h3>Mitarbeiter "Test"</h3><!-- Name des Mitarbeiters -->
+									<h6 id="MAposition"></h6><!-- Supportrolle des Mitarbeiters -->
+									<h3 id="MAname"></h3><!-- Name des Mitarbeiters -->
 								</div>
 							</div>
 							<ul class="list-group list-group-flush">
@@ -94,7 +91,7 @@
 						<ul class="list-group list-group-flush">
 							<!-- 1st-Level -->
 							<li class="list-group-item d-flex pt-0">
-								<div class="firstLevel px-3 mx-n3">
+								<div id="firstLevel01" class="firstLevel px-3 mx-n3">
 									<img src="img/Mitarbeiter_64px.png">
 									<p class="m-0">Test</p><!-- Name des 1st-Level-Mitarbeiters -->
 								</div>
@@ -106,7 +103,7 @@
 							</li>
 							<!-- 2nd-Level -->
 							<li class="list-group-item d-flex">
-								<div class="secondLevel px-3 mx-n3">
+								<div id="secondLevel01" class="secondLevel px-3 mx-n3">
 									<img src="img/Mitarbeiter_64px.png">
 									<p class="m-0">Test</p><!-- Name des 1st-Level-Mitarbeiters -->
 								</div>
@@ -118,7 +115,7 @@
 							</li>
 							<!-- 2nd-Level -->
 							<li class="list-group-item d-flex">
-								<div class="secondLevel px-3 mx-n3">
+								<div id="secondLevel02" class="secondLevel px-3 mx-n3">
 									<img src="img/Mitarbeiter_64px.png">
 									<p class="m-0">Test</p><!-- Name des 1st-Level-Mitarbeiters -->
 								</div>
@@ -130,7 +127,7 @@
 							</li>
 							<!-- 2nd-Level -->
 							<li class="list-group-item d-flex pb-0">
-								<div class="secondLevel px-3 mx-n3">
+								<div id="secondLevel03" class="secondLevel px-3 mx-n3">
 									<img src="img/Mitarbeiter_64px.png">
 									<p class="m-0">Test</p><!-- Name des 1st-Level-Mitarbeiters -->
 								</div>
@@ -195,6 +192,9 @@
 		</footer>
 	</div>
 </body>
+		
+	<!-- CDN jQuery (wird für Bootstrap JavaScript-Plugins benötigt) -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 	<!--eigene JavaScript-Datei-->
 	<script type="text/javascript" src="../js/script.js"></script>
 </html>
