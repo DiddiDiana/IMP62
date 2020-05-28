@@ -1,3 +1,55 @@
+//-------- Daten aus der Datenbank holen ---------/
+//globale Variablen definieren
+var supportMitarbeiter;
+var incidents;
+var spiel
+
+//Support-Mitarbeiter Daten holen
+var smXhr = new XMLHttpRequest();
+// PHP Datei fuer alle Support-Mitarbeiter aus der Datenbank abrufen
+smXhr.open("GET", "../db.php?data=support-mitarbeiter", true);
+smXhr.send();
+// Antwort des Servers abwarten
+smXhr.onreadystatechange = function() {
+// Kontroller, ob der Server geantwortet hat
+    if (smXhr.readyState == 4 && smXhr.status == 200) {
+    // Inhalte der JSON Datei in der supportMitarbeiter Variable speichern
+    // Aufbau  supportMitarbeiter[Datensatz].mitarbeiterID, name , position, kategorieID, kategorie, faehigkeitID, faehigkeit ,level
+    supportMitarbeiter = JSON.parse(smXhr.responseText);
+    //console.log(supportMitarbeiter); //Test Ausgabe
+    }
+}
+
+//Incident Daten holen
+var incXhr = new XMLHttpRequest();
+// PHP Datei fuer alle incidents aus der Datenbank abrufen
+incXhr.open("GET", "../db.php?data=incidents", true);
+incXhr.send();
+// Antwort des Servers abwarten
+incXhr.onreadystatechange = function() {
+    // Kontroller, ob der Server geantwortet hat
+    if (incXhr.readyState == 4 && incXhr.status == 200) {
+        // Inhalte der JSON Datei in der Incidents Variable speichern
+        // Aufbau  incident[Datensatz].incID, title , faelligkeit, fachlichefaehigkeit, erstellungsdatum, status, prioritaet ,
+        // bearbeitungsstand, kundenzufriedenheit, bearbeitungsdauer, bearbeiter, kategorie 
+        incidents = JSON.parse(incXhr.responseText);
+    }
+}
+        
+//Spiel Daten holen
+var spielXhr = new XMLHttpRequest();
+// PHP Datei fuer Spielinfromationen aus der Datenbank abrufen
+spielXhr.open("GET", "../db.php?data=spiel", true);
+spielXhr.send();
+// Antwort des Servers abwarten
+spielXhr.onreadystatechange = function() {
+// Kontroller, ob der Server geantwortet hat
+if (spielXhr.readyState == 4 && spielXhr.status == 200) {
+    // Inhalte der JSON Datei in die Spiel Variable speichern
+    // Aufbau  supportMitarbeiter[Datensatz].spielID, spielphase , runde, anfang, ende, inFaelligkeit, ausFaelligkeit, zaehler
+    spiel = JSON.parse(spielXhr.responseText);
+    }
+}
 //-----------Einleitung-----------//
 function changeHTMLEinleitung() {
     //----------erstelle Elemente------------//	
@@ -29,69 +81,60 @@ function changeHTMLEinleitung() {
 	var Ausgabebereich = document.getElementById("main");
     Ausgabebereich.parentNode.replaceChild(newMain, Ausgabebereich);
     
-
     buttonGame.onclick = function () {
-        //-------- Daten aus der Datenbank holen ---------/
-        //Incident Daten holen
-        var incXhr = new XMLHttpRequest();
-        // PHP Datei fuer alle incidents aus der Datenbank abrufen
-        incXhr.open("GET", "../db.php?data=incidents", true);
-        incXhr.send();
-        // Antwort des Servers abwarten
-        incXhr.onreadystatechange = function() {
-            // Kontroller, ob der Server geantwortet hat
-            if (incXhr.readyState == 4 && incXhr.status == 200) {
-                // Inhalte der JSON Datei in der Incidents Variable speichern
-                // Aufbau  incident[Datensatz].incID, title , faelligkeit, fachlichefaehigkeit, erstellungsdatum, status, prioritaet ,
-                // bearbeitungsstand, kundenzufriedenheit, bearbeitungsdauer, bearbeiter, kategorie 
-                var incidents = JSON.parse(incXhr.responseText);
-            }
-        }
-        //Support-Mitarbeiter Daten holen
-        var smXhr = new XMLHttpRequest();
-        // PHP Datei fuer alle Support-Mitarbeiter aus der Datenbank abrufen
-        smXhr.open("GET", "../db.php?data=support-mitarbeiter", true);
-        smXhr.send();
-        // Antwort des Servers abwarten
-        smXhr.onreadystatechange = function() {
-        // Kontroller, ob der Server geantwortet hat
-        if (smXhr.readyState == 4 && smXhr.status == 200) {
-            // Inhalte der JSON Datei in der supportMitarbeiter Variable speichern
-            // Aufbau  supportMitarbeiter[Datensatz].mitarbeiterID, name , position, kategorieID, kategorie, faehigkeitID, faehigkeit ,level
-            var supportMitarbeiter = JSON.parse(smXhr.responseText);
-            }
-        }
-        //Spiel Daten holen
-        var spielXhr = new XMLHttpRequest();
-        // PHP Datei fuer Spielinfromationen aus der Datenbank abrufen
-        spielXhr.open("GET", "../db.php?data=spiel", true);
-        spielXhr.send();
-        // Antwort des Servers abwarten
-        spielXhr.onreadystatechange = function() {
-        // Kontroller, ob der Server geantwortet hat
-        if (spielXhr.readyState == 4 && spielXhr.status == 200) {
-            // Inhalte der JSON Datei in die Spiel Variable speichern
-            // Aufbau  supportMitarbeiter[Datensatz].spielID, spielphase , runde, anfang, ende, inFaelligkeit, ausFaelligkeit, zaehler
-            var spiel = JSON.parse(spielXhr.responseText);
-            }
-        }
-      
         changeHTMLGame();
     }
 }//ENDE Einleitung
 
 //wird DOM geladen, tausche das HTML aus
-
 document.addEventListener('DOMContentLoaded', changeHTMLEinleitung);
 
 //-----------Hauptspiel-----------//
 function changeHTMLGame() {
     $.get('index.html', function (data) {
-		$('body').html(data);
+        $('body').html(data);
+        console.log(supportMitarbeiter); //Test Ausgabe 
+        //-------------Mitarbeiter zur Auswahl im Arbeitsbereich-------------//
+        var firstLevelMitarbeiter01 = document.getElementById("firstLevel01");
+        var secondLevelMitarbeiter01 = document.getElementById("secondLevel01");
+        var secondLevelMitarbeiter02 = document.getElementById("secondLevel02");
+        var secondLevelMitarbeiter03 = document.getElementById("secondLevel03");
+
+        //-------eine zentrale Methode wäre sinnvoll -> funktioniert nicht-------//
+/*         function MAdatenAnzeigen(n){
+            document.getElementById("MAposition").textContent = supportMitarbeiter[n].position + "-Support";
+            document.getElementById("MAname").textContent = "Mitarbeiter: " + supportMitarbeiter[n].name;
+            
+        } 
+        document.getElementById("firstLevel01").onclick = MAdatenAnzeigen(0);
+        document.getElementById("secondLevel01").onclick = MAdatenAnzeigen(1);*/
+
+        firstLevelMitarbeiter01.onclick = function (){
+            document.getElementById("MAposition").textContent = supportMitarbeiter[0].position + "-Support";
+            document.getElementById("MAname").textContent = "Mitarbeiter: " + supportMitarbeiter[0].name;
+        } 
+        secondLevelMitarbeiter01.onclick = function (){
+            document.getElementById("MAposition").textContent = supportMitarbeiter[1].position + "-Support";
+            document.getElementById("MAname").textContent = "Mitarbeiter: " + supportMitarbeiter[1].name;
+
+        } 
+        secondLevelMitarbeiter02.onclick = function (){
+            document.getElementById("MAposition").textContent = supportMitarbeiter[2].position + "-Support";
+            document.getElementById("MAname").textContent = "Mitarbeiter: " + supportMitarbeiter[2].name;
+
+        } 
+        secondLevelMitarbeiter03.onclick = function (){
+            document.getElementById("MAposition").textContent = supportMitarbeiter[3].position + "-Support";
+            document.getElementById("MAname").textContent = "Mitarbeiter: " + supportMitarbeiter[3].name;
+
+        }  
+
     })
+
 }//ENDE Game
 
 //-----------Auswertung-----------//
 function changeHTMLAuswertung() {
 
 }//ENDE Auswertung
+
