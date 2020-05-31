@@ -9,7 +9,6 @@
 	<!-- Icon-Bibliothek https://fontawesome.com/icons?d=gallery -->
  	<link href="fontawesome/css/all.min.css" rel="stylesheet"> 
 
-
 	<title>Planspiel Incident Management</title>
 
 </head>
@@ -44,44 +43,7 @@
 				<section class="col-md-4 card">
 					<h2 class="card-title">Informationsbereich</h2>
 					<div id="infobereich" class="card-body">
-						<form>
-							<div class="d-flex">
-								<img src="img/Mitarbeiter_64px.png" class="mr-2 mb-2">
-								<div>
-									<h6 id="MAposition"></h6><!-- Supportrolle des Mitarbeiters -->
-									<h3 id="MAname"></h3><!-- Name des Mitarbeiters -->
-								</div>
-							</div>
-							<ul class="list-group list-group-flush">
-								<!-- Kategorie des Mitarbeiters laut DB -->
-								<li class="list-group-item">Kategorie:
-									<ul>
-										<li>Betrieb</li>
-									</ul>
-								</li>
-								<!-- fachliche Fähigkeiten des Mitarbeiters laut DB -->
-								<li class="list-group-item">fachliche Fähigkeiten:
-									<ul>
-										<li>Systemadministrator (Profi)</li>
-										<li>Microsoft Azure Architektur (Anfänger)</li>
-									</ul>
-								</li>
-								<!-- persönliche Fähigkeiten des Mitarbeiters laut DB -->
-								<!-- Anzeige persönlicher Fähigkeiten nur bei 2nd-Level Mitarbeitern -->
-								<li class="list-group-item">persönliche Fähigkeiten:
-									<ul>
-										<li>test</li>
-										<li>test</li>
-									</ul>
-								</li>
-								<!-- dem Mitarbeiter zugeordnete Aufgaben mit ID, Titel & Status -->
-								<li class="list-group-item">zugeordnete Aufgaben:
-									<ul>
-										<li>test</li>
-									</ul>
-								</li>
-							</ul>
-						</form>
+						<!-- Platzhalter: siehe infobereich.html------ zum Austausch ausgelagert -->
 					</div>
 				</section>
 				<!-- Anzeige Bearbeitung von Aufgaben aller Mitarbeiter -->
@@ -91,50 +53,50 @@
 						<ul class="list-group list-group-flush">
 							<!-- 1st-Level -->
 							<li class="list-group-item d-flex pt-0">
-								<div id="firstLevel01" class="firstLevel px-3 mx-n3">
+								<div id="firstLevel01" class="firstLevel px-3 mx-n3" onclick="Test">
 									<img src="img/Mitarbeiter_64px.png">
-									<p class="m-0">Test</p><!-- Name des 1st-Level-Mitarbeiters -->
+									<p id="firstLevel01name" class="m-0">Test</p><!-- Name des 1st-Level-Mitarbeiters -->
 								</div>
 								<ul>
-									<li>#123 Test-Titel</li><!-- ID und Titel des Incidents -->
-									<li> (in Bearbeitung) fällig in X Stunden</li><!-- Fälligkeit des Incidents -->
-									<li>Bearbeitung: 25% </li> <!-- Anzeige zum Bearbeitungsstand des Incidents -->
+									<li id="IncTitel"></li><!-- ID und Titel des Incidents -->
+									<li id="Faelligkeit"></li><!-- Fälligkeit des Incidents -->
+									<li id="Bearbeitungsstand"></li> <!-- Anzeige zum Bearbeitungsstand des Incidents -->
 								</ul>
 							</li>
 							<!-- 2nd-Level -->
 							<li class="list-group-item d-flex">
 								<div id="secondLevel01" class="secondLevel px-3 mx-n3">
 									<img src="img/Mitarbeiter_64px.png">
-									<p class="m-0">Test</p><!-- Name des 1st-Level-Mitarbeiters -->
+									<p id="secondLevel01name" class="m-0">Test</p><!-- Name des 1st-Level-Mitarbeiters -->
 								</div>
 								<ul>
-									<li>#123 Test-Titel</li><!-- ID und Titel des Incidents -->
-									<li> (in Bearbeitung) fällig in X Stunden</li><!-- Fälligkeit des Incidents -->
-									<li>Bearbeitung: 25% </li> <!-- Anzeige zum Bearbeitungsstand des Incidents -->
+									<li id="Sec01IncTitel"></li><!-- ID und Titel des Incidents -->
+									<li id="Sec01Faelligkeit"></li><!-- Fälligkeit des Incidents -->
+									<li id="Sec01Bearbeitungsstand"></li> <!-- Anzeige zum Bearbeitungsstand des Incidents -->
 								</ul>
 							</li>
 							<!-- 2nd-Level -->
 							<li class="list-group-item d-flex">
 								<div id="secondLevel02" class="secondLevel px-3 mx-n3">
 									<img src="img/Mitarbeiter_64px.png">
-									<p class="m-0">Test</p><!-- Name des 1st-Level-Mitarbeiters -->
+									<p id="secondLevel02name" class="m-0">Test</p><!-- Name des 1st-Level-Mitarbeiters -->
 								</div>
 								<ul>
-									<li>#123 Test-Titel</li><!-- ID und Titel des Incidents -->
-									<li> (in Bearbeitung) fällig in X Stunden</li><!-- Fälligkeit des Incidents -->
-									<li>Bearbeitung: 25% </li> <!-- Anzeige zum Bearbeitungsstand des Incidents -->
+									<li id="Sec02IncTitel"></li><!-- ID und Titel des Incidents -->
+									<li id="Sec02Faelligkeit"></li><!-- Fälligkeit des Incidents -->
+									<li id="Sec02Bearbeitungsstand"></li> <!-- Anzeige zum Bearbeitungsstand des Incidents -->
 								</ul>
 							</li>
 							<!-- 2nd-Level -->
 							<li class="list-group-item d-flex pb-0">
 								<div id="secondLevel03" class="secondLevel px-3 mx-n3">
 									<img src="img/Mitarbeiter_64px.png">
-									<p class="m-0">Test</p><!-- Name des 1st-Level-Mitarbeiters -->
+									<p id="secondLevel03name" class="m-0">Test</p><!-- Name des 1st-Level-Mitarbeiters -->
 								</div>
 								<ul>
-									<li>#123 Test-Titel</li><!-- ID und Titel des Incidents -->
-									<li> (in Bearbeitung) fällig in X Stunden</li><!-- Fälligkeit des Incidents -->
-									<li>Bearbeitung: 25% </li> <!-- Anzeige zum Bearbeitungsstand des Incidents -->
+									<li id="Sec03IncTitel"></li><!-- ID und Titel des Incidents -->
+									<li id="Sec03Faelligkeit"></li><!-- Fälligkeit des Incidents -->
+									<li id="Sec03Bearbeitungsstand"></li> <!-- Anzeige zum Bearbeitungsstand des Incidents -->
 								</ul>
 							</li>
 						</ul>
@@ -179,8 +141,8 @@
 								</li>
 							</ul>
 							<div class="d-lg-flex justify-content-center">
-								<button class="btn mr-2 mt-2">bearbeiten</button>
-								<button class="btn mt-2">weiterleiten</button>
+								<input type="button" value="bearbeiten" class="btn mr-2 mt-2" id="btn-bearbeiten"></input>
+								<input type="button" value="weiterleiten" class="btn mt-2" id="btn-weiterleiten"></input>
 							</div>
 						</form>
 					</div>
