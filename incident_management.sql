@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 28. Mai 2020 um 08:10
+-- Erstellungszeit: 31. Mai 2020 um 14:47
 -- Server-Version: 10.4.11-MariaDB
 -- PHP-Version: 7.4.6
 
@@ -65,7 +65,8 @@ INSERT INTO `fachfaehigkeitzuordnen` (`MitarbeiterID`, `fachlicheFaehigkeit`, `l
 (2, 1, 1),
 (3, 3, 3),
 (4, 1, 4),
-(5, 2, 3);
+(5, 2, 3),
+(3, 1, 2);
 
 -- --------------------------------------------------------
 
@@ -123,7 +124,7 @@ INSERT INTO `faehigkeiten` (`faehigkeitenID`, `name`, `typ`) VALUES
 CREATE TABLE `incident` (
   `incID` int(11) NOT NULL,
   `aufgabenID` int(11) NOT NULL,
-  `fealligkeit` int(11) NOT NULL COMMENT 'Fälligkeit in Runden vom Erstellungsdatum aus.',
+  `faelligkeit` int(11) NOT NULL COMMENT 'Fälligkeit in Runden vom Erstellungsdatum aus.',
   `benoetigteFachlFaehigkeit` int(11) NOT NULL,
   `erstellungsdatum` date DEFAULT NULL,
   `status` enum('neu','warteschlange','in arbeit','erledigt','') NOT NULL,
@@ -132,39 +133,20 @@ CREATE TABLE `incident` (
   `kundenzufriedenheit` int(11) NOT NULL,
   `bearbeitungsdauer` int(11) NOT NULL,
   `bearbeiter` text DEFAULT NULL,
-  `kategorie` int(11) NOT NULL
+  `kategorie` int(11) NOT NULL,
+  `thema` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Daten für Tabelle `incident`
 --
 
-INSERT INTO `incident` (`incID`, `aufgabenID`, `fealligkeit`, `benoetigteFachlFaehigkeit`, `erstellungsdatum`, `status`, `prioritaet`, `bearbeitungsstand`, `kundenzufriedenheit`, `bearbeitungsdauer`, `bearbeiter`, `kategorie`) VALUES
-(1, 1, 1, 0, NULL, 'neu', 'hoch', 0, 0, 0, NULL, 0),
-(2, 2, 1, 0, NULL, 'neu', 'mittel', 0, 0, 0, NULL, 0),
-(3, 4, 1, 0, NULL, 'neu', 'niedrig', 0, 0, 0, NULL, 0),
-(4, 3, 3, 0, NULL, 'neu', 'hoch', 0, 0, 0, NULL, 0),
-(5, 7, 2, 0, NULL, 'neu', 'kritisch', 0, 0, 0, NULL, 0);
-
--- --------------------------------------------------------
-
---
--- Tabellenstruktur für Tabelle `interneaufgaben`
---
-
-CREATE TABLE `interneaufgaben` (
-  `aufgabe` int(11) NOT NULL,
-  `bearbeitungsdauer` int(11) NOT NULL COMMENT 'Bearbeitungsdauer in stunden.',
-  `bearbeiter` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Daten für Tabelle `interneaufgaben`
---
-
-INSERT INTO `interneaufgaben` (`aufgabe`, `bearbeitungsdauer`, `bearbeiter`) VALUES
-(5, 1, NULL),
-(6, 3, NULL);
+INSERT INTO `incident` (`incID`, `aufgabenID`, `faelligkeit`, `benoetigteFachlFaehigkeit`, `erstellungsdatum`, `status`, `prioritaet`, `bearbeitungsstand`, `kundenzufriedenheit`, `bearbeitungsdauer`, `bearbeiter`, `kategorie`, `thema`) VALUES
+(1, 1, 1, 0, NULL, 'neu', 'hoch', 0, 0, 0, 'unbekannt', 0, 'Passwort mehrmals falsch eingeben.'),
+(2, 2, 1, 0, NULL, 'neu', 'mittel', 0, 0, 0, 'unbekannt', 0, 'Neuer Mitarbeiter muss eingepflegt werden.'),
+(3, 4, 1, 0, NULL, 'neu', 'niedrig', 0, 0, 0, 'unbekannt', 0, 'Antivirusprogramm auf dem Server updaten.'),
+(4, 3, 3, 0, NULL, 'neu', 'hoch', 0, 0, 0, 'unbekannt', 0, 'Das neue Programm hat einen Bug.'),
+(5, 7, 2, 0, NULL, 'neu', 'kritisch', 0, 0, 0, 'unbekannt', 0, 'Fehlermeldung im Ereignisprotokoll des Servers.');
 
 -- --------------------------------------------------------
 
@@ -254,25 +236,6 @@ INSERT INTO `persoenlichefaehigkeiten` (`faehigkeit`, `auswirkung`) VALUES
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `persofaehigkeitzuordnen`
---
-
-CREATE TABLE `persofaehigkeitzuordnen` (
-  `MitarbeiterID` int(11) NOT NULL,
-  `persoenlicheFaehigkeit` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Daten für Tabelle `persofaehigkeitzuordnen`
---
-
-INSERT INTO `persofaehigkeitzuordnen` (`MitarbeiterID`, `persoenlicheFaehigkeit`) VALUES
-(3, 5),
-(4, 7);
-
--- --------------------------------------------------------
-
---
 -- Tabellenstruktur für Tabelle `spiel`
 --
 
@@ -295,26 +258,6 @@ CREATE TABLE `spiel` (
 
 INSERT INTO `spiel` (`spielID`, `spielphase`, `runde`, `anfang`, `ende`, `spieler`, `incInFaelligkeit`, `incAusFaelligkeit`, `durchKundenbewertung`, `zaehler`) VALUES
 (1, 'Einleitung', NULL, NULL, NULL, 1, 0, 0, 0, 0);
-
--- --------------------------------------------------------
-
---
--- Tabellenstruktur für Tabelle `verbesserung`
---
-
-CREATE TABLE `verbesserung` (
-  `verbesserungID` int(11) NOT NULL,
-  `bezeichnung` text NOT NULL,
-  `vorraussetzung` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Daten für Tabelle `verbesserung`
---
-
-INSERT INTO `verbesserung` (`verbesserungID`, `bezeichnung`, `vorraussetzung`) VALUES
-(1, 'Programmierung Level 2', 'Programmierung Level 1'),
-(2, 'Programmierung Level 3', 'Programmierung Level 2');
 
 --
 -- Indizes der exportierten Tabellen
@@ -348,12 +291,6 @@ ALTER TABLE `incident`
   ADD KEY `kategorie` (`kategorie`);
 
 --
--- Indizes für die Tabelle `interneaufgaben`
---
-ALTER TABLE `interneaufgaben`
-  ADD PRIMARY KEY (`aufgabe`);
-
---
 -- Indizes für die Tabelle `kategorie`
 --
 ALTER TABLE `kategorie`
@@ -379,24 +316,11 @@ ALTER TABLE `persoenlichefaehigkeiten`
   ADD PRIMARY KEY (`faehigkeit`);
 
 --
--- Indizes für die Tabelle `persofaehigkeitzuordnen`
---
-ALTER TABLE `persofaehigkeitzuordnen`
-  ADD KEY `persoenlicheFaehigkeit` (`persoenlicheFaehigkeit`),
-  ADD KEY `persofaehigkeitzuordnen_ibfk_1` (`MitarbeiterID`);
-
---
 -- Indizes für die Tabelle `spiel`
 --
 ALTER TABLE `spiel`
   ADD PRIMARY KEY (`spielID`),
   ADD KEY `spieler` (`spieler`);
-
---
--- Indizes für die Tabelle `verbesserung`
---
-ALTER TABLE `verbesserung`
-  ADD PRIMARY KEY (`verbesserungID`);
 
 --
 -- AUTO_INCREMENT für exportierte Tabellen
@@ -419,43 +343,10 @@ ALTER TABLE `spiel`
 --
 
 --
--- Constraints der Tabelle `incident`
---
-ALTER TABLE `incident`
-  ADD CONSTRAINT `incident_ibfk_1` FOREIGN KEY (`aufgabenID`) REFERENCES `aufgaben` (`aufgabenID`),
-  ADD CONSTRAINT `incident_ibfk_2` FOREIGN KEY (`benoetigteFachlFaehigkeit`) REFERENCES `faehigkeiten` (`faehigkeitenID`),
-  ADD CONSTRAINT `incident_ibfk_3` FOREIGN KEY (`kategorie`) REFERENCES `kategorie` (`kategorieID`);
-
---
--- Constraints der Tabelle `interneaufgaben`
---
-ALTER TABLE `interneaufgaben`
-  ADD CONSTRAINT `interneaufgaben_ibfk_1` FOREIGN KEY (`aufgabe`) REFERENCES `aufgaben` (`aufgabenID`);
-
---
--- Constraints der Tabelle `mitarbeiter`
---
-ALTER TABLE `mitarbeiter`
-  ADD CONSTRAINT `mitarbeiter_ibfk_1` FOREIGN KEY (`kategorie`) REFERENCES `kategorie` (`kategorieID`);
-
---
 -- Constraints der Tabelle `persoenlichefaehigkeiten`
 --
 ALTER TABLE `persoenlichefaehigkeiten`
   ADD CONSTRAINT `persoenlichefaehigkeiten_ibfk_1` FOREIGN KEY (`faehigkeit`) REFERENCES `faehigkeiten` (`faehigkeitenID`);
-
---
--- Constraints der Tabelle `persofaehigkeitzuordnen`
---
-ALTER TABLE `persofaehigkeitzuordnen`
-  ADD CONSTRAINT `persofaehigkeitzuordnen_ibfk_1` FOREIGN KEY (`MitarbeiterID`) REFERENCES `mitarbeiter` (`mitarbeiterID`),
-  ADD CONSTRAINT `persofaehigkeitzuordnen_ibfk_2` FOREIGN KEY (`persoenlicheFaehigkeit`) REFERENCES `persoenlichefaehigkeiten` (`faehigkeit`);
-
---
--- Constraints der Tabelle `spiel`
---
-ALTER TABLE `spiel`
-  ADD CONSTRAINT `spiel_ibfk_1` FOREIGN KEY (`spieler`) REFERENCES `nutzer` (`nutzerID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
