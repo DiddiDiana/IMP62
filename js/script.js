@@ -195,25 +195,43 @@ function changeHTMLGame() {
         }
 
         //---------Methode für neu einzutreffende Incidents in die InBox --- //
-        var incMax = rand(0,3); //-------- bis zu maximal 4 neue Incidents ----//
-        for(var x=0; x<=incMax;x++){ //------- Funktion um die neuen Incidents zu erstellen. ----//
-            //--------- ein Incident besteh aus einem Div und einem IMG ----/
-            var newIncident = document.createElement("div");
-            var incidentImg = document.createElement("img");
-            //--------- Eigenschaften hinzufügen----//
-            newIncident.id = x;
-            newIncident.value = incidents[x].incID;
-            newIncident.style.float = "left";
-            incidentImg.src = "img/icons8-dokument-64.png";
-            newIncident.appendChild(incidentImg);
-            //------Funktion zum inhalt der Incidents hinzufügen ---//
-            newIncident.onclick = function () {
-                  var incident = incidents[this.id];
-                  IncdatenAnzeigen(incidents[this.id]);
-            }
-            inbox.appendChild(newIncident);
-        }
+        var incMax = rand(1,4); //-------- bis zu maximal 4 neue Incidents ----//
+        var incInBox = false;
+        if(inbox.childNodes.length <= 4){ //----- In der Inbox sollen höchstens 4 Incidents sin ---- /
+            var incCount = inbox.childNodes.length;
+            for(var x=0; x<Object.keys(incidents).length;x++){ //--- Schleife die alle Incidents kontrolliert --- //
+                if(incidents[x].status == "neu"){   //--- Kontrolliert, ob der aktuelle Incident noch auf status neu steht---//
+                    for(y=0; y < inbox.childNodes.length; y++){ //--- Geht alle vorhandenen Incidents in der Inbox durch ---- //
+                        if(inbox.childNodes[y].value == incidents[x].incID){ /// Vergleich, ob der aktuelle Incidents bereits in der Inbox ist
+                            incInBox = true;
+                        }
+                    }
+                    if( incInBox == false){
 
+                    //--------- ein Incident besteh aus einem Div und einem IMG ----/
+                        var newIncident = document.createElement("div");
+                        var incidentImg = document.createElement("img");
+                        //--------- Eigenschaften hinzufügen----//
+                        newIncident.id = x;
+                        newIncident.value = incidents[x].incID;
+                        newIncident.style.float = "left";
+                        incidentImg.src = "img/icons8-dokument-64.png";
+                        newIncident.appendChild(incidentImg);
+                        //------Funktion zum inhalt der Incidents hinzufügen ---//
+                        newIncident.onclick = function () {
+                            var incident = incidents[this.id];
+                            IncdatenAnzeigen(incidents[this.id]);
+                        }
+                        inbox.appendChild(newIncident);
+                        incInBox = false;
+                        incCount++;
+                        if(incCount > incMax){
+                            x=Object.keys(incidents).length;
+                        }
+                    }
+                }
+            }
+        }
 
     })
 
