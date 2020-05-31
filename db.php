@@ -119,4 +119,48 @@ if(isset($_GET['data']) && $_GET['data']=='spiel'){
         echo ']';
         
 }
+
+//Auslesen der Kategorien 
+if(isset($_GET['data']) && $_GET['data']=='kategorien'){
+        // Abfrage über Spiel Informationen
+        $request = $verbindung->prepare(" SELECT * FROM `kategorie` "); 
+         // Die vorbereitete Anweisung ausführen
+        $request->execute();
+        // Übertragene Daten der ausgeführten Anweisungen
+        $fetch = $request->fetchAll(PDO::FETCH_OBJ);
+        // Anzahl der Übergebenen Datensätze
+        $rowCount = sizeof($fetch);
+        $count = 1;
+        // Aufbau einer JSON Datei zur Übergabe an Javascript
+        echo '[';
+        // Alle gefundenen Datensätze ausgeben  und JSON Datei erstellen
+        foreach ($fetch as $kategorie) {
+                echo '{';
+                echo '"kategorieID" : "'. $kategorie->kategorieID . '",';
+                echo '"name" : "'. $kategorie->name . '"';
+                if ($count < $rowCount){
+                        echo '},';
+                        $count++;
+                }else{
+                        // Letzte Klammer darf kein Komma haben, sonst funktioniert das Parsen der JSON-Datei nicht.
+                        echo '}';
+                }
+        }
+        echo ']';
+        
+}
+//Auslesen der Aufzählung der Prioritäten aus der Incident-Tabelle
+if(isset($_GET['data']) && $_GET['data']=='prio'){
+      
+        $sth = $verbindung->prepare("SHOW COLUMNS FROM incident LIKE 'prioritaet'");
+        $sth->execute(); 
+        $data = array();
+        while ($row = $sth->fetch(PDO::FETCH_NUM)) {   
+            $data=explode("','",preg_replace("/(enum|set)\('(.+?)'\)/","\\2",$row[1]));
+        }
+        //echo "<pre>";
+        //print_r ($data);
+        echo json_encode($data);
+        //print_r($data[0]);
+}
 ?>
