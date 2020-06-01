@@ -58,30 +58,54 @@ if(isset($_GET['data']) && $_GET['data']=='support-mitarbeiter'){
         $supportMitarbeiter->execute();
         // Übertragene Daten der ausgeführten Anweisungen
         $supportMitarbeiterfetch = $supportMitarbeiter->fetchAll(PDO::FETCH_OBJ);
-        // Anzahl der Übergebenen Datensätze
+        // Anzahl der Übergebenen Datensätze 
         $rowCount = sizeof($supportMitarbeiterfetch);
-        $count = 1;
+        $faehigkeitenCount=1;
         // Aufbau einer JSON Datei zur Übergabe an Javascript
         echo '[';
         // Alle gefundenen Datensätze ausgeben  und JSON Datei erstellen
+        $lastMA = 0;
         foreach ($supportMitarbeiterfetch as $smitarbeiter) {
-                echo '{';
-                echo '"mitarbeiterID" : "'. $smitarbeiter->mitarbeiterID . '",';
-                echo '"name" : "'. $smitarbeiter->name . '",';
-                echo '"position" : "'. $smitarbeiter->position . '",';
-                echo '"kategorieID" : "'. $smitarbeiter->kategorie. '",'; 
-                echo '"kategorie" : "'. $smitarbeiter->KategorieBezeichnung . '",';  
-                echo '"faehigkeitID" : "'. $smitarbeiter->faehigkeitID . '",'; 
-                echo '"faehigkeit" : "'. $smitarbeiter->FaehigkeitBezeichnung . '",'; 
-                echo '"level" : "'. $smitarbeiter->level . '"'; 
-                if ($count < $rowCount){
-                        echo '},';
-                        $count++;
-                }else{
-                        // Letzte Klammer darf kein Komma haben, sonst funktioniert das Parsen der JSON-Datei nicht.
-                        echo '}';
+                //------Methode um das JSON File zu erstellen----/
+                //------ Kontrolliert ob der Aktuelle Mitarbeiter die selbe Mitarbeiter ID hat wie der letzte. ----//
+                if ($lastMA !=  $smitarbeiter->mitarbeiterID){
+                        //-------------Wenn nicht, wird kontrolliert, ob es der erste Mitarbeiter ist ------//
+                        if($lastMA == 0){
+                                $lastMA = $smitarbeiter->mitarbeiterID;
+                                echo '{';
+                                echo '"mitarbeiterID" : "'. $smitarbeiter->mitarbeiterID . '",';
+                                echo '"name" : "'. $smitarbeiter->name . '",';
+                                echo '"position" : "'. $smitarbeiter->position . '",';
+                                echo '"kategorieID" : "'. $smitarbeiter->kategorie. '",'; 
+                                echo '"kategorie" : "'. $smitarbeiter->KategorieBezeichnung . '",';  
+                                echo '"faehigkeitID'.$faehigkeitenCount.'" : "'. $smitarbeiter->faehigkeitID . '",'; 
+                                echo '"faehigkeit'.$faehigkeitenCount.'" : "'. $smitarbeiter->FaehigkeitBezeichnung . '",'; 
+                                echo '"level'.$faehigkeitenCount.'" : "'. $smitarbeiter->level . '"';
+                        //----ist es nicht der erste Mitarbeiter, wird ein neuer Mitarbeiter in das JSONfilde hinzugefügt. ---//
+                        } else {
+                                $lastMA = $smitarbeiter->mitarbeiterID;
+                                $faehigkeitenCount=1;
+                                echo '},';
+                                echo '{';
+                                echo '"mitarbeiterID" : "'. $smitarbeiter->mitarbeiterID . '",';
+                                echo '"name" : "'. $smitarbeiter->name . '",';
+                                echo '"position" : "'. $smitarbeiter->position . '",';
+                                echo '"kategorieID" : "'. $smitarbeiter->kategorie. '",'; 
+                                echo '"kategorie" : "'. $smitarbeiter->KategorieBezeichnung . '",';  
+                                echo '"faehigkeitID'.$faehigkeitenCount.'" : "'. $smitarbeiter->faehigkeitID . '",'; 
+                                echo '"faehigkeit'.$faehigkeitenCount.'" : "'. $smitarbeiter->FaehigkeitBezeichnung . '",'; 
+                                echo '"level'.$faehigkeitenCount.'" : "'. $smitarbeiter->level . '"';
+                        }
+                //-------Ist es der Selbe Mitarbeiter wie vorher, wird eine weitere Fahigkeit hinzugefügt. ----//
+                } else {
+                        $faehigkeitenCount++;
+                        echo ',';
+                        echo '"faehigkeitID'.$faehigkeitenCount.'" : "'. $smitarbeiter->faehigkeitID . '",'; 
+                        echo '"faehigkeit'.$faehigkeitenCount.'" : "'. $smitarbeiter->FaehigkeitBezeichnung . '",'; 
+                        echo '"level'.$faehigkeitenCount.'" : "'. $smitarbeiter->level . '"';
                 }
         }
+        echo '}';
         echo ']';
         
 }
@@ -121,20 +145,22 @@ if(isset($_GET['data']) && $_GET['data']=='spiel'){
 }
 
 //Auslesen der Kategorien 
-if(isset($_GET['data']) && $_GET['data']=='kategorien'){
-        // Abfrage über Spiel Informationen
-        $request = $verbindung->prepare(" SELECT * FROM `kategorie` "); 
-         // Die vorbereitete Anweisung ausführen
-        $request->execute();
+if(isset($_GET['data']) && $_GET['data']=='kategorie' )
+{
+        // Abfrage in der Datenbank nach den vorhanden Kategorien 
+        $kategorien = $verbindung->prepare(" SELECT kategorieID, name 
+                                        FROM `kategorie`"); 
+        // Die vorbereitete Anweisung ausführen
+        $kategorien->execute();
         // Übertragene Daten der ausgeführten Anweisungen
-        $fetch = $request->fetchAll(PDO::FETCH_OBJ);
+        $kategorienfetch = $kategorien->fetchAll(PDO::FETCH_OBJ);
         // Anzahl der Übergebenen Datensätze
-        $rowCount = sizeof($fetch);
+        $rowCount = sizeof($kategorienfetch);
         $count = 1;
         // Aufbau einer JSON Datei zur Übergabe an Javascript
         echo '[';
         // Alle gefundenen Datensätze ausgeben  und JSON Datei erstellen
-        foreach ($fetch as $kategorie) {
+        foreach ($kategorienfetch as $kategorie) {
                 echo '{';
                 echo '"kategorieID" : "'. $kategorie->kategorieID . '",';
                 echo '"name" : "'. $kategorie->name . '"';
@@ -147,7 +173,6 @@ if(isset($_GET['data']) && $_GET['data']=='kategorien'){
                 }
         }
         echo ']';
-        
 }
 //Auslesen der Aufzählung der Prioritäten aus der Incident-Tabelle
 if(isset($_GET['data']) && $_GET['data']=='prio'){
@@ -155,12 +180,20 @@ if(isset($_GET['data']) && $_GET['data']=='prio'){
         $sth = $verbindung->prepare("SHOW COLUMNS FROM incident LIKE 'prioritaet'");
         $sth->execute(); 
         $data = array();
-        while ($row = $sth->fetch(PDO::FETCH_NUM)) {   
+		$c=0;
+        while ($row = $sth->fetch(PDO::FETCH_NUM)) {
             $data=explode("','",preg_replace("/(enum|set)\('(.+?)'\)/","\\2",$row[1]));
         }
-        //echo "<pre>";
-        //print_r ($data);
-        echo json_encode($data);
-        //print_r($data[0]);
+        //------ Das obere Array() muss noch in ein JSON gerecht umgebaut werden---//
+        echo '{';
+		foreach($data as $prio){
+			if($c+2 <= sizeof($data)){
+				echo '"'.$c.'" : "'.$prio.'",';
+				$c++;
+			}else{
+				echo '"'.$c.'" : "'.$prio.'"';
+			}
+		}
+                echo'}';
 }
 ?>
