@@ -22,6 +22,7 @@ smXhr.onreadystatechange = function() {
     // Inhalte der JSON Datei in der supportMitarbeiter Variable speichern
     // Aufbau  supportMitarbeiter[Datensatz].mitarbeiterID, name , position, kategorieID, kategorie, faehigkeitID, faehigkeit ,level
     supportMitarbeiter = JSON.parse(smXhr.responseText);
+    //console.log(supportMitarbeiter);
     }
 }
 
@@ -38,7 +39,7 @@ incXhr.onreadystatechange = function() {
         // Aufbau  incident[Datensatz].incID, title , faelligkeit, fachlichefaehigkeit, erstellungsdatum, status, prioritaet ,
         // bearbeitungsstand, kundenzufriedenheit, bearbeitungsdauer, bearbeiter, kategorie 
         incidents = JSON.parse(incXhr.responseText);
-        console.log(incidents);
+        //console.log(incidents); //liefert [] leer zurück
     }
 }
         
@@ -57,17 +58,18 @@ if (spielXhr.readyState == 4 && spielXhr.status == 200) {
     }
 }
 
-//Kategorien holen
-var kategorieXhr = new XMLHttpRequest();
+//Kategorie Daten holen
+var katXhr = new XMLHttpRequest();
 // PHP Datei fuer Spielinfromationen aus der Datenbank abrufen
-kategorieXhr.open("GET", "../db.php?data=kategorien", true);
-kategorieXhr.send();
+katXhr.open("GET", "../db.php?data=kategorie", true);
+katXhr.send();
 // Antwort des Servers abwarten
-kategorieXhr.onreadystatechange = function() {
+katXhr.onreadystatechange = function() {
 // Kontroller, ob der Server geantwortet hat
-if (kategorieXhr.readyState == 4 && kategorieXhr.status == 200) {
-    // Inhalte der JSON Datei in die Spiel Variable speichern
-    kategorie = JSON.parse(kategorieXhr.responseText);
+if (katXhr.readyState == 4 && katXhr.status == 200) {
+    // Inhalte der JSON Datei in die Kategorie Variable speichern
+    // Aufbau  supportMitarbeiter[Datensatz].kategorieID, name
+    kategorien = JSON.parse(katXhr.responseText);
     }
 }
 
@@ -80,10 +82,12 @@ prioXhr.send();
 prioXhr.onreadystatechange = function() {
 // Kontroller, ob der Server geantwortet hat
 if (prioXhr.readyState == 4 && prioXhr.status == 200) {
+    //--- Untere Angebe gibt den inhalt nur als string zurück
+    //prio=this.responseText
     // Inhalte der JSON Datei in die Spiel Variable speichern
-    prio=this.responseText;  
+    prio = JSON.parse(prioXhr.responseText);
     }
-} 
+}
 
 //-----------Spiel-Einleitung-----------//
 function changeHTMLEinleitung() {
@@ -150,6 +154,27 @@ function changeHTMLGame() {
             Infobereich = 1; //damit die MA-Daten per Klick angezeigt werden können 
         }
         
+        //-------------Methode um die Auswahlbox "Kategorie im Incidentbereich" ---------//
+        // ------------mit den Werten aus der Datenbank zubefüllen. ----------------------//
+        var incDetKat = document.getElementById("incDetKat");
+        kategorien.forEach(element => {
+            var katOpt = document.createElement("option");
+            katOpt.text = element.name;
+            katOpt.value = element.kategorieID;
+            incDetKat.options[element.kategorieID] = katOpt;
+        });
+
+        //-------------Methode um die Auswahlbox "Prioritaet im Incidentbereich" ---------//
+        // ------------mit den Werten aus der Datenbank zubefüllen. ----------------------//
+        var incDetPrio = document.getElementById("incDetPrio");
+        for(pc=0; pc<Object.keys(prio).length - 1;pc++){
+        //prio.forEach(element => {
+            var prioOpt = document.createElement("option");
+            prioOpt.text = prio[pc];
+            prioOpt.value = prio[pc];
+            incDetPrio.options[pc] = prioOpt;
+        }
+
         //--------Mitarbeiternamen anzeigen (Start)----------//
         document.getElementById("firstLevel01name").textContent = supportMitarbeiter[0].name;
         document.getElementById("secondLevel01name").textContent = supportMitarbeiter[1].name;
@@ -206,13 +231,71 @@ function changeHTMLGame() {
             })
         } 
 
+        //------------Neuankommende Incident ---------------------------//
+        var inbox = document.getElementById("inBox");
+        //---------------- Funktion um eine Zufallszahl zu generieren -------//
+        function rand (min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        //-------------Methode um Incidentdaten anzuzeigen ------------//
+        function IncdatenAnzeigen(daten){
+            document.getElementById("incDetTitel").innerText = "#" + daten.incID + " \n "+ daten.title;
+            document.getElementById("incDetThema").innerText = daten.thema;
+            document.getElementById("incDetFaell").innerText = "fällig in " + daten.faelligkeit + " Stunden ";
+            document.getElementById("incDetPrio").value  = daten.prioritaet;
+            document.getElementById("incDetKat").value  = daten.kategorie;
+            document.getElementById("incDetBea").innerText = daten.bearbeiter;
+        }
+
+        
+        //---------Methode für neu einzutreffende Incidents in die InBox --- //
+        var incMax = rand(1,4); //-------- bis zu maximal 4 neue Incidents ----//
+        var incInBox = false;
+        if(inbox.childNodes.length <= 4){ //----- In der Inbox sollen höchstens 4 Incidents sin ---- /
+            var incCount = inbox.childNodes.length;
+            for(var x=0; x<Object.keys(incidents).length;x++){ //--- Schleife die alle Incidents kontrolliert --- //
+                if(incidents[x].status == "neu"){   //--- Kontrolliert, ob der aktuelle Incident noch auf status neu steht---//
+                    for(y=0; y < inbox.childNodes.length; y++){ //--- Geht alle vorhandenen Incidents in der Inbox durch ---- //
+                        if(inbox.childNodes[y].value == incidents[x].incID){ /// Vergleich, ob der aktuelle Incidents bereits in der Inbox ist
+                            incInBox = true;
+                        }
+                    }
+                    if( incInBox == false){
+
+                    //--------- ein Incident besteh aus einem Div und einem IMG ----/
+                        var newIncident = document.createElement("div");
+                        var incidentImg = document.createElement("img");
+                        //--------- Eigenschaften hinzufügen----//
+                        newIncident.id = x;
+                        newIncident.value = incidents[x].incID;
+                        newIncident.style.float = "left";
+                        incidentImg.src = "img/icons8-dokument-64.png";
+                        newIncident.appendChild(incidentImg);
+                        //------Funktion zum inhalt der Incidents hinzufügen ---//
+                        newIncident.onclick = function () {
+                            var incident = incidents[this.id];
+                            IncdatenAnzeigen(incidents[this.id]);
+                        }
+                        inbox.appendChild(newIncident);
+                        incInBox = false;
+                        incCount++;
+                        if(incCount > incMax){
+                            x=Object.keys(incidents).length;
+                        }
+                    }
+                }
+            }
+        }
+
         //-----------------Incident 1st-Level zuweisen und Daten im Arbeitsbereich anzeigen---------------------//
         var buttonBearbeiten = document.getElementById("btn-bearbeiten");
         buttonBearbeiten.onclick = function () {
             //nimm aktive Incident-Daten entgegen
             IncFirstLevel = incidents[0]; //Test incident[0] = aktiver Incident
+            console.log(incidents[0]);
             document.getElementById("IncTitel").textContent = "#" + IncFirstLevel.incID + " " + IncFirstLevel.title;
-            document.getElementById("Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncFirstLevel.fealligkeit + " Runden";
+            document.getElementById("Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncFirstLevel.faelligkeit + " Runden";
             document.getElementById("Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
             /* es fehlt noch
             - Berechnung Runden in Stunden
@@ -224,18 +307,19 @@ function changeHTMLGame() {
         buttonWeiterleiten.onclick = function () {
             //nimm aktive Incident-Daten entgegen
             IncSecondLevel01 = incidents[1]; //Test incident[1] = aktiver Incident
+
             document.getElementById("Sec01IncTitel").textContent = "#" + IncSecondLevel01.incID + " " + IncSecondLevel01.title;
-            document.getElementById("Sec01Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel01.fealligkeit + " Runden";
+            document.getElementById("Sec01Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel01.faelligkeit + " Runden";
             document.getElementById("Sec01Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
 
             IncSecondLevel02 = incidents[2]; //Test incident[2] = aktiver Incident
             document.getElementById("Sec02IncTitel").textContent = "#" + IncSecondLevel02.incID + " " + IncSecondLevel01.title;
-            document.getElementById("Sec02Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel02.fealligkeit + " Runden";
+            document.getElementById("Sec02Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel02.faelligkeit + " Runden";
             document.getElementById("Sec02Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
 
             IncSecondLevel03 = incidents[3]; //Test incident[3] = aktiver Incident
             document.getElementById("Sec03IncTitel").textContent = "#" + IncSecondLevel03.incID + " " + IncSecondLevel01.title;
-            document.getElementById("Sec03Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel03.fealligkeit + " Runden";
+            document.getElementById("Sec03Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel03.faelligkeit + " Runden";
             document.getElementById("Sec03Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
 
             /* es fehlt noch

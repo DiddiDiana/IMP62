@@ -107,45 +107,39 @@
 					<h2 class="card-title">Incidentbereich</h2>
 					<div id="incbereich" class="card-body">
 						<!-- Platzhalter Eingang: ein Symbol je eingehendem Incident der nicht zugeiwesen ist -->
-						<div>
-							<img src="img/icons8-dokument-64.png"><!-- Testanzeige -->
-							<img src="img/icons8-dokument-64.png"><!-- Testanzeige -->
+						<div id="incbereich" class="card-body">
+							<!-- Platzhalter Eingang: ein Symbol je eingehendem Incident der nicht zugeiwesen ist -->
+							<div id="inBox"style="display:block; margin-bottom:80px;">
+							</div>
+							<!-- Zeigt beim Klick auf ein Incident-Symbol dessen Daten an -->
+							<form class="card-body">
+								<div class="d-flex">
+									<img src="img/icons8-dokument-64.png">
+									<h3 id="incDetTitel"><!--#123 <br>Test-Titel--></h3> <!-- zeigt Incident-ID & -Titel laut DB an -->
+								</div>
+								<ul class="list-group list-group-flush">
+									<li class="list-group-item d-lg-flex">Thema:
+										<p id="incDetThema" class="ml-1"><!--Incident-Thema Test--></p>
+									</li>
+									<li id="incDetFaell" class="list-group-item"><!--fällig in X Stunden--></li>
+									<li class="list-group-item d-lg-flex">Priorität:
+										<select class="ml-1" name="prio" id="incDetPrio">
+										</select>
+									</li>
+									<li class="list-group-item d-lg-flex">Kategorie:
+										<select class="ml-1" name="kategorie" id="incDetKat">
+										</select>
+									</li>
+									<li class="list-group-item d-lg-flex">Bearbeiter:
+										<p id="incDetBea" class="ml-1">Mitarbeiter A</p>
+									</li>
+								</ul>
+								<div class="d-lg-flex justify-content-center">
+									<input type="button" value="bearbeiten" class="btn mr-2 mt-2" id="btn-bearbeiten"></input>
+									<input type="button" value="weiterleiten" class="btn mt-2" id="btn-weiterleiten"></input>
+								</div>
+							</form>
 						</div>
-						<!-- Zeigt beim Klick auf ein Incident-Symbol dessen Daten an -->
-						<form class="card-body">
-							<div class="d-flex">
-								<img src="img/icons8-dokument-64.png">
-								<h3>#123 <br>Test-Titel</h3> <!-- zeigt Incident-ID & -Titel laut DB an -->
-							</div>
-							<ul class="list-group list-group-flush">
-								<li class="list-group-item d-lg-flex">Thema:
-									<p class="ml-1">Incident-Thema Test</p>
-								</li>
-								<li class="list-group-item">fällig in X Stunden</li>
-								<li class="list-group-item d-lg-flex">Priorität:
-									<select class="ml-1" name="prio" id="">
-										<option value="">Test 1</option>
-										<option value="">Test 2</option>
-										<option value="">Test 3</option>
-									</select>
-								</li>
-								<li class="list-group-item d-lg-flex">Kategorie:
-									<select class="ml-1" name="kategorie" id="">
-										<option value="">Test 1</option>
-										<option value="">Test 2</option>
-										<option value="">Test 3</option>
-									</select>
-								</li>
-								<li class="list-group-item d-lg-flex">Bearbeiter:
-									<p class="ml-1">Mitarbeiter A</p>
-								</li>
-							</ul>
-							<div class="d-lg-flex justify-content-center">
-								<input type="button" value="bearbeiten" class="btn mr-2 mt-2" id="btn-bearbeiten"></input>
-								<input type="button" value="weiterleiten" class="btn mt-2" id="btn-weiterleiten"></input>
-							</div>
-						</form>
-					</div>
 				</section>
 			</div>
 		</main>
