@@ -5,7 +5,7 @@ $verbindung = new PDO('mysql:host=127.0.0.1;dbname=incident_management', 'root',
 if(isset($_GET['data']) && $_GET['data']=='incidents' )
 {
         // Abfrage in der Datenbank nach den vorhanden Incidents 
-        $incidents = $verbindung->prepare(" SELECT incID,aufgaben.title, fealligkeit,faehigkeiten.name as fachlichefaehigkeit, erstellungsdatum, status, prioritaet, bearbeitungsstand, kundenzufriedenheit, bearbeitungsdauer, bearbeiter, kategorie 
+        $incidents = $verbindung->prepare(" SELECT incID,aufgaben.title, faelligkeit,faehigkeiten.name as fachlichefaehigkeit, erstellungsdatum, status, prioritaet, bearbeitungsstand, kundenzufriedenheit, bearbeitungsdauer, bearbeiter, kategorie, thema 
                                         FROM (`incident` 
                                         INNER JOIN `faehigkeiten` 
                                         on incident.benoetigteFachlFaehigkeit=faehigkeiten.faehigkeitenID) 
@@ -25,7 +25,7 @@ if(isset($_GET['data']) && $_GET['data']=='incidents' )
                 echo '{';
                 echo '"incID" : "'. $incident->incID . '",';
                 echo '"title" : "'. $incident->title . '",';
-                echo '"fealligkeit" : "'. $incident->fealligkeit . '",';
+                echo '"faelligkeit" : "'. $incident->faelligkeit . '",';
                 echo '"fachlichefaehigkeit" : "'. $incident->fachlichefaehigkeit. '",';
                 echo '"erstellungsdatum" : "'. $incident->erstellungsdatum . '",';
                 echo '"status" : "'. $incident->status . '",';
@@ -34,7 +34,8 @@ if(isset($_GET['data']) && $_GET['data']=='incidents' )
                 echo '"kundenzufriedenheit" : "'. $incident->kundenzufriedenheit. '",';
                 echo '"bearbeitungsdauer" : "'. $incident->bearbeitungsdauer . '",';
                 echo '"bearbeiter" : "'. $incident->bearbeiter . '",';
-                echo '"kategorie" : "'. $incident->kategorie . '"';
+                echo '"kategorie" : "'. $incident->kategorie . '",';
+                echo '"thema" : "'. $incident->thema . '"';
                 if ($count < $rowCount){
                         echo '},';
                         $count++;
