@@ -138,6 +138,20 @@ function changeHTMLGame() {
     //lade die index.html in den body
     $.get('index.html', function (data) {
         $('body').html(data);
+        
+            console.log(document.getElementById("inBox").children);
+       
+        timer();
+        /// Timer Funktion für die Spielrundenberechnung----/
+        function timer() {
+            var startTime = Date.now();
+        
+            var interval = setInterval(function() {
+               var elapsedTime = Date.now() - startTime;
+               document.getElementById('timer').innerHTML = (elapsedTime / 1000).toFixed(0);
+            }, 5000);
+        }
+
 
         //-----------Ausgabe wechseln, wenn kein MA zB beim Start zur Anzeige gewählt ist-------------//
         var Infobereich = 0;
@@ -239,6 +253,7 @@ function changeHTMLGame() {
 
         //------------Neuankommende Incident ---------------------------//
         var inbox = document.getElementById("inBox");
+        
         //---------------- Funktion um eine Zufallszahl zu generieren -------//
         function rand (min, max) {
             return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -246,14 +261,69 @@ function changeHTMLGame() {
 
         //-------------Methode um Incidentdaten anzuzeigen ------------//
         function IncdatenAnzeigen(daten){
+            if(document.getElementById("noInc").style.visibility=="visible"){
+                document.getElementById("noInc").style.visibility="collapse";
+                document.getElementById("incDetForm").style.visibility="visible";
+                document.getElementById("btn-bearbeiten").style.visibility="visible";
+                document.getElementById("btn-weiterleiten").style.visibility="visible";
+            }
             document.getElementById("incDetTitel").innerText = "#" + daten.incID + " \n "+ daten.title;
             document.getElementById("incDetThema").innerText = daten.thema;
-            document.getElementById("incDetFaell").innerText = "fällig in " + daten.faelligkeit + " Stunden ";
+            if (daten.faelligkeit == 1){
+                document.getElementById("incDetFaell").innerText = "fällig in " + daten.faelligkeit + " Stunde ";   
+            }else{
+                document.getElementById("incDetFaell").innerText = "fällig in " + daten.faelligkeit + " Stunden ";
+            }
             document.getElementById("incDetPrio").value  = daten.prioritaet;
             document.getElementById("incDetKat").value  = daten.kategorie;
             document.getElementById("incDetBea").innerText = daten.bearbeiter;
         }
 
+        ///-----------------------zentrale Function um Incidentdaten zu ändern -----//
+        function IncDatenAendern(incID,erstellungsdatum,status, prioritaet,bearbeitungsstand,kundenzufriedenheit,bearbeitungsdauer, bearbeiter, kategorie){
+            for(i=0;i<Object.keys(incidents).length;i++){
+                if(incidents[i].incID == incID){
+                    if(typeof erstellungsdatum != 'undefined' || erstellungsdatum != "" ){
+                        incidents[i].erstellungdatum = erstellungsdatum;
+                    }
+                    if(typeof status != 'undefined' || status != "" ){
+                        incidents[i].status = status;
+                    }
+                    if(typeof prioritaet != 'undefined' || prioritaet != ""){
+                        incidents[i].prioritaet = prioritaet;
+                    }
+                    if(typeof bearbeitungsstand != 'undefined' || bearbeitungsstand != ""){
+                        incidents[i].bearbeitungsstand = bearbeitungsstand;
+                    }
+                    if(typeof kundenzufriedenheit != 'undefined' || kundenzufriedenheit != ""){
+                        incidents[i].kundenzufriedenheit = kundenzufriedenheit;
+                    }
+                    if(typeof bearbeitungsdauer != 'undefined' || bearbeitungsdauer != ""){
+                        incidents[i].bearbeitungsdauer = bearbeitungsdauer;
+                    }
+                    if(typeof bearbeiter != 'undefined' || bearbeiter != ""){
+                        incidents[i].bearbeiter = bearbeiter;
+                    }
+                    if(typeof kategorie != 'undefined' || kategorie != ""){
+                        incidents[i].kategorie = kategorie;
+                    }
+                    i=Object.keys(incidents).length;
+                }
+            }
+        }
+
+        ///--------------------- Function um Incidents aus der InBox zu entfernen -----------//
+        function IncRemoveInbox(incID){
+            document.getElementById("inBox").removeChild(document.getElementById(incID));
+            //---- Incident bereich wird ggf. wieder geleert ----/
+            if(document.getElementById("inBox").childElementCount == 0){
+                document.getElementById("incDetTitel").innerHTML = "";
+                document.getElementById("noInc").style.visibility="visible";
+                document.getElementById("incDetForm").style.visibility="hidden";
+                document.getElementById("btn-bearbeiten").style.visibility="hidden";
+                document.getElementById("btn-weiterleiten").style.visibility="hidden";
+            }
+        }
         //-----------------Incident 1st-Level zuweisen und Daten im Arbeitsbereich anzeigen---------------------//
         var buttonBearbeiten = document.getElementById("btn-bearbeiten"); 
         buttonBearbeiten.onclick = function () {
@@ -264,6 +334,8 @@ function changeHTMLGame() {
                 document.getElementById("Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncFirstLevel.faelligkeit + " Runden";
                 document.getElementById("Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
                 IncFirstBearbeitung = 1;
+                IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","","",supportMitarbeiter[0].name,document.getElementById("incDetKat").value);
+                IncRemoveInbox(Incaktuell.incID);
             }else{
                 alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
             }
@@ -282,6 +354,8 @@ function changeHTMLGame() {
                     document.getElementById("Sec01Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel01.faelligkeit + " Runden";
                     document.getElementById("Sec01Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
                     IncSecBearbeitung01 =1;
+                    IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","","",supportMitarbeiter[1].name,document.getElementById("incDetKat").value);
+                    IncRemoveInbox(Incaktuell.incID);
                 }else{
                     alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
                 }
@@ -292,6 +366,8 @@ function changeHTMLGame() {
                     document.getElementById("Sec02Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel02.faelligkeit + " Runden";
                     document.getElementById("Sec02Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
                     IncSecBearbeitung02 =1;
+                    IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","","",supportMitarbeiter[2].name,document.getElementById("incDetKat").value);
+                    IncRemoveInbox(Incaktuell.incID);
                 }else{
                     alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
                 }
@@ -302,6 +378,8 @@ function changeHTMLGame() {
                     document.getElementById("Sec03Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel03.faelligkeit + " Runden";
                     document.getElementById("Sec03Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
                     IncSecBearbeitung03 =1;
+                    IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","","",supportMitarbeiter[3].name,document.getElementById("incDetKat").value);
+                    IncRemoveInbox(Incaktuell.incID);
                 }else{
                     alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
                 }
@@ -314,9 +392,9 @@ function changeHTMLGame() {
         }
 
          //---------Methode für neu einzutreffende Incidents in die InBox --- //
-         var incMax = rand(1,4); //-------- bis zu maximal 4 neue Incidents ----//
+         var incMax = rand(6,8); //-------- bis zu maximal 4 neue Incidents ----//
          var incInBox = false;
-         if(inbox.childNodes.length <= 4){ //----- In der Inbox sollen höchstens 4 Incidents sin ---- /
+         if(inbox.childNodes.length <= 8){ //----- In der Inbox sollen höchstens 4 Incidents sin ---- /
              var incCount = inbox.childNodes.length;
              for(var x=0; x<Object.keys(incidents).length;x++){ //--- Schleife die alle Incidents kontrolliert --- //
                  if(incidents[x].status == "neu"){   //--- Kontrolliert, ob der aktuelle Incident noch auf status neu steht---//
@@ -331,16 +409,16 @@ function changeHTMLGame() {
                          var newIncident = document.createElement("div");
                          var incidentImg = document.createElement("img");
                          //--------- Eigenschaften hinzufügen----//
-                         newIncident.id = x;
-                         newIncident.value = incidents[x].incID;
+                         newIncident.id = incidents[x].incID;
+                         newIncident.value = x;
                          newIncident.style.float = "left";
                          incidentImg.src = "img/icons8-dokument-64.png";
                          newIncident.appendChild(incidentImg);
                          //------Funktion zum inhalt der Incidents hinzufügen ---//
                          newIncident.onclick = function () {
                              //var incident = incidents[this.id];
-                             IncdatenAnzeigen(incidents[this.id]);
-                             Incaktuell = incidents[this.id];
+                             IncdatenAnzeigen(incidents[this.value]);
+                             Incaktuell = incidents[this.value];
                              //console.log(incidents[this.id]);//aktueller Incident
                          }
                          inbox.appendChild(newIncident);
