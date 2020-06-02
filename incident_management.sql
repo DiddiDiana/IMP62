@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Erstellungszeit: 02. Jun 2020 um 18:05
+-- Erstellungszeit: 02. Jun 2020 um 22:54
 -- Server-Version: 10.4.6-MariaDB
 -- PHP-Version: 7.3.9
 
@@ -144,15 +144,15 @@ CREATE TABLE `incident` (
 
 INSERT INTO `incident` (`incID`, `aufgabenID`, `faelligkeit`, `benoetigteFachlFaehigkeit`, `erstellungsdatum`, `status`, `prioritaet`, `bearbeitungsstand`, `kundenzufriedenheit`, `bearbeitungsdauer`, `bearbeiter`, `kategorie`, `thema`) VALUES
 (1, 1, 1, 0, NULL, 'neu', '', 0, 0, 1, 'noch nicht zugewiesen', 0, 'Passwort mehrmals falsch eingeben.'),
-(2, 2, 1, 0, NULL, 'neu', '', 0, 0, 3, 'noch nicht zugewiesen', 0, 'Neuer Mitarbeiter muss eingepflegt werden.'),
-(3, 4, 1, 0, NULL, 'neu', '', 0, 0, 4, 'noch nicht zugewiesen', 0, 'Antivirusprogramm auf dem Server updaten.'),
-(4, 3, 3, 0, NULL, 'neu', '', 0, 0, 6, 'noch nicht zugewiesen', 0, 'Das neue Programm hat einen Bug.'),
-(5, 7, 2, 0, NULL, 'neu', '', 0, 0, 2, 'noch nicht zugewiesen', 0, 'Fehlermeldung im Ereignisprotokoll des Servers.'),
+(2, 2, 1, 1, NULL, 'neu', '', 0, 0, 3, 'noch nicht zugewiesen', 0, 'Neuer Mitarbeiter muss eingepflegt werden.'),
+(3, 4, 1, 3, NULL, 'neu', '', 0, 0, 4, 'noch nicht zugewiesen', 0, 'Antivirusprogramm auf dem Server updaten.'),
+(4, 3, 3, 2, NULL, 'neu', '', 0, 0, 6, 'noch nicht zugewiesen', 0, 'Das neue Programm hat einen Bug.'),
+(5, 7, 2, 3, NULL, 'neu', '', 0, 0, 2, 'noch nicht zugewiesen', 0, 'Fehlermeldung im Ereignisprotokoll des Servers.'),
 (6, 1, 1, 0, NULL, 'neu', '', 0, 0, 1, 'noch nicht zugewiesen', 0, 'Passwort mehrmals falsch eingeben.'),
-(7, 2, 1, 0, NULL, 'neu', '', 0, 0, 2, 'noch nicht zugewiesen', 0, 'Neuer Mitarbeiter muss eingepflegt werden.'),
-(8, 4, 1, 0, NULL, 'neu', '', 0, 0, 5, 'noch nicht zugewiesen', 0, 'Antivirusprogramm auf dem Server updaten.'),
-(9, 3, 3, 0, NULL, 'neu', '', 0, 0, 6, 'noch nicht zugewiesen', 0, 'Das neue Programm hat einen Bug.'),
-(10, 7, 2, 0, NULL, 'neu', '', 0, 0, 2, 'noch nicht zugewiesen', 0, 'Fehlermeldung im Ereignisprotokoll des Servers.');
+(7, 2, 1, 1, NULL, 'neu', '', 0, 0, 2, 'noch nicht zugewiesen', 0, 'Neuer Mitarbeiter muss eingepflegt werden.'),
+(8, 4, 1, 3, NULL, 'neu', '', 0, 0, 5, 'noch nicht zugewiesen', 0, 'Antivirusprogramm auf dem Server updaten.'),
+(9, 3, 3, 4, NULL, 'neu', '', 0, 0, 6, 'noch nicht zugewiesen', 0, 'Das neue Programm hat einen Bug.'),
+(10, 7, 2, 3, NULL, 'neu', '', 0, 0, 2, 'noch nicht zugewiesen', 0, 'Fehlermeldung im Ereignisprotokoll des Servers.');
 
 -- --------------------------------------------------------
 

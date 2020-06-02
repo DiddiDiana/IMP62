@@ -326,7 +326,6 @@ function changeHTMLGame() {
                 IncBearbeitung(0);
                 document.getElementById("Bearbeitungsstand").textContent = "Bearbeitungsstand: 0%";
                 IncFirstBearbeitung = 1;
-                //--------FEHLER!!!!!!!!!entfernt falschen Incident aus der Inbox-------//
                 IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","",Incaktuell.bearbeitungsdauer,supportMitarbeiter[0].name,document.getElementById("incDetKat").value);
                 IncRemoveInbox(Incaktuell.incID);
                 
@@ -348,7 +347,6 @@ function changeHTMLGame() {
                     IncBearbeitung(1);
                     document.getElementById("Sec01Bearbeitungsstand").textContent = "Bearbeitungsstand: 0%";
                     IncSecBearbeitung01 =1;
-                    //--------FEHLER!!!!!!!!!entfernt falschen Incident aus der Inbox-------//
                     IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","",Incaktuell.bearbeitungsdauer,supportMitarbeiter[1].name,document.getElementById("incDetKat").value);
                     IncRemoveInbox(Incaktuell.incID);
                 }else{//wenn MA bereits einen Incident bearbeitet
@@ -362,7 +360,6 @@ function changeHTMLGame() {
                     IncBearbeitung(2);
                     document.getElementById("Sec02Bearbeitungsstand").textContent = "Bearbeitungsstand: 0%";
                     IncSecBearbeitung02 =1;
-                    //--------FEHLER!!!!!!!!!entfernt falschen Incident aus der Inbox-------//
                     IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","",Incaktuell.bearbeitungsdauer,supportMitarbeiter[2].name,document.getElementById("incDetKat").value);
                     IncRemoveInbox(Incaktuell.incID);
                 }else{
@@ -376,7 +373,6 @@ function changeHTMLGame() {
                     IncBearbeitung(3);
                     document.getElementById("Sec03Bearbeitungsstand").textContent = "Bearbeitungsstand: 0%";
                     IncSecBearbeitung03 =1;
-                    //--------FEHLER!!!!!!!!!entfernt falschen Incident aus der Inbox-------//
                     IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","",Incaktuell.bearbeitungsdauer,supportMitarbeiter[3].name,document.getElementById("incDetKat").value);
                     IncRemoveInbox(Incaktuell.incID);
                 }else{
@@ -396,22 +392,24 @@ function changeHTMLGame() {
             function BerechneBearbeitung() {           
                 var diff = Date.now() - start;
                 var IncBearbeitungsdauer = Incaktuell.bearbeitungsdauer * 10000; //in ms -> Speicherung in DB als InGame Stunden (1h = 10sek = 10000ms)
-                console.log(diff);
-                console.log(IncBearbeitungsdauer);
                 if (mitarbeiter == 0){
-                    supportMitarbeiter[0].bearbeitungsstand = prozent_runden((diff/IncBearbeitungsdauer)*100);
+                    var korrWert = BerechneFaehigkeit(supportMitarbeiter[0]); //korrigierter Wert
+                    supportMitarbeiter[0].bearbeitungsstand = prozent_runden((diff/korrWert)*100);
                     document.getElementById("Bearbeitungsstand").textContent = "Bearbeitungsstand: " + supportMitarbeiter[0].bearbeitungsstand; //Ausgabe am First-Level
                 }else if (mitarbeiter == 1){
-                    supportMitarbeiter[1].bearbeitungsstand = prozent_runden((diff/IncBearbeitungsdauer)*100);
+                    var korrWert = BerechneFaehigkeit(supportMitarbeiter[1]); //korrigierter Wert
+                    supportMitarbeiter[1].bearbeitungsstand = prozent_runden((diff/korrWert)*100);
                     document.getElementById("Sec01Bearbeitungsstand").textContent = "Bearbeitungsstand: " + supportMitarbeiter[1].bearbeitungsstand; //Ausgabe am Second-Level
                 }else if (mitarbeiter == 2){
-                    supportMitarbeiter[2].bearbeitungsstand = prozent_runden((diff/IncBearbeitungsdauer)*100);
+                    var korrWert = BerechneFaehigkeit(supportMitarbeiter[2]); //korrigierter Wert
+                    supportMitarbeiter[2].bearbeitungsstand = prozent_runden((diff/korrWert)*100);
                     document.getElementById("Sec02Bearbeitungsstand").textContent = "Bearbeitungsstand: " + supportMitarbeiter[2].bearbeitungsstand; //Ausgabe am Second-Level
                 }else if (mitarbeiter == 3){
-                    supportMitarbeiter[3].bearbeitungsstand = prozent_runden((diff/IncBearbeitungsdauer)*100);
+                    var korrWert = BerechneFaehigkeit(supportMitarbeiter[3]); //korrigierter Wert
+                    supportMitarbeiter[3].bearbeitungsstand = prozent_runden((diff/korrWert)*100);
                     document.getElementById("Sec03Bearbeitungsstand").textContent = "Bearbeitungsstand: " + supportMitarbeiter[3].bearbeitungsstand; //Ausgabe am Second-Level
                 }
-                if (diff >= IncBearbeitungsdauer){
+                if (diff >= korrWert){
                     clearInterval(timerBearbeitung);
                 }
             }
@@ -422,13 +420,52 @@ function changeHTMLGame() {
             var wert=Math.round(quelle*10);
             var wert2=wert/10;
             var wert3=wert2-Math.round(wert2);
+            if(wert2>=100){
+                wert2=100;
+            }//nicht über 100% anzeigen
             if (wert3==0){
                 return wert2 + "." + wert3 + "%";
-                }else{
+            }else{
                 return wert2 + "%";
-                }
-            }
+             }
+        } 
 
+        function BerechneFaehigkeit(mitarbeiter){
+            var IncBearbeitungsdauer = Incaktuell.bearbeitungsdauer * 10000; //in ms -> Speicherung in DB als InGame Stunden (1h = 10sek = 10000ms)
+            if (Incaktuell.fachlichefaehigkeit == mitarbeiter.faehigkeit1){ //benötigte Fähigkeit = MA-Fähigkeit 01
+                if(mitarbeiter.level1 == 1){
+                    var wert = IncBearbeitungsdauer + (IncBearbeitungsdauer/4);
+                    return wert; 
+                }else if(mitarbeiter.level1 == 2){
+                    var wert = IncBearbeitungsdauer + 0;
+                    return wert; 
+                }else if(mitarbeiter.level1 == 3){
+                    var wert = IncBearbeitungsdauer - (IncBearbeitungsdauer/4);
+                    return wert; 
+                }else if(mitarbeiter.level1 == 4){
+                    IncBearbeitungsdauer - (IncBearbeitungsdauer/2);
+                }
+                //prüfe Level (1)Beginner +25%, (2)Gelernter +0, (3)Profi -25%, (4)Experte -50%
+            }else if(Incaktuell.fachlichefaehigkeit == mitarbeiter.faehigkeit2){//benötigte Fähigkeit = MA-Fähigkeit 02
+                if(mitarbeiter.level1 == 1){
+                    var wert = IncBearbeitungsdauer + (IncBearbeitungsdauer/4);
+                    return wert; 
+                }else if(mitarbeiter.level1 == 2){
+                    var wert = IncBearbeitungsdauer + 0;
+                    return wert; 
+                }else if(mitarbeiter.level1 == 3){
+                    var wert = IncBearbeitungsdauer - (IncBearbeitungsdauer/4);
+                    return wert; 
+                }else if(mitarbeiter.level1 == 4){
+                    IncBearbeitungsdauer - (IncBearbeitungsdauer/2);
+                }
+                //prüfe Level (1)Beginner +25%, (2)Gelernter +0, (3)Profi -25%, (4)Experte -50%
+            }else{//keine fachliche Fähigkeit
+                var wert = (IncBearbeitungsdauer/2) + IncBearbeitungsdauer;
+                return wert; 
+                //Bearbeitung +50%
+            }
+        }
          //---------Methode für neu einzutreffende Incidents in die InBox --- //
          var incMax = rand(6,8); //-------- bis zu maximal 4 neue Incidents ----//
          var incInBox = false;
