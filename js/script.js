@@ -1,13 +1,20 @@
 //-----globale Variablen definieren------//
-var supportMitarbeiter;
-var incidents;
-var spiel;
+var supportMitarbeiter;     //alle Daten aller Mitarbeiter
+var incidents;              //alle Daten aller Incident
+var spiel;                  
 var kategorie;
 var prio;
-var IncFirstLevel;
-var IncSecondLevel01;
-var IncSecondLevel02;
-var IncSecondLevel03;
+
+var IncFirstLevel;          //1st-Level zugewiesener Incident
+var IncSecondLevel01;       //2nd-Level zugewiesener Incident
+var IncSecondLevel02;       //...
+var IncSecondLevel03;       //...
+
+var Incaktuell; //speichert aktuell gewählten Incident des Incidentbereichs
+var IncFirstBearbeitung = 0; //speichert Bearbeitung des First-Level (zu Beginn leer)
+var IncSecBearbeitung01 = 0; //speichert Bearbeitung des Second-Level (zu Beginn leer)
+var IncSecBearbeitung02 = 0; //speichert Bearbeitung des Second-Level (zu Beginn leer)
+var IncSecBearbeitung03 = 0; //speichert Bearbeitung des Second-Level (zu Beginn leer)
 
 //-------- Daten aus der Datenbank holen ---------//
 //Support-Mitarbeiter Daten holen
@@ -22,7 +29,6 @@ smXhr.onreadystatechange = function() {
     // Inhalte der JSON Datei in der supportMitarbeiter Variable speichern
     // Aufbau  supportMitarbeiter[Datensatz].mitarbeiterID, name , position, kategorieID, kategorie, faehigkeitID, faehigkeit ,level
     supportMitarbeiter = JSON.parse(smXhr.responseText);
-    //console.log(supportMitarbeiter);
     }
 }
 
@@ -39,7 +45,6 @@ incXhr.onreadystatechange = function() {
         // Aufbau  incident[Datensatz].incID, title , faelligkeit, fachlichefaehigkeit, erstellungsdatum, status, prioritaet ,
         // bearbeitungsstand, kundenzufriedenheit, bearbeitungsdauer, bearbeiter, kategorie 
         incidents = JSON.parse(incXhr.responseText);
-        //console.log(incidents); //liefert [] leer zurück
     }
 }
         
@@ -133,8 +138,22 @@ function changeHTMLGame() {
     //lade die index.html in den body
     $.get('index.html', function (data) {
         $('body').html(data);
+        
+            console.log(document.getElementById("inBox").children);
+       
+        timer();
+        /// Timer Funktion für die Spielrundenberechnung----/
+        function timer() {
+            var startTime = Date.now();
+        
+            var interval = setInterval(function() {
+               var elapsedTime = Date.now() - startTime;
+               document.getElementById('timer').innerHTML = (elapsedTime / 1000).toFixed(0);
+            }, 5000);
+        }
 
-        //-----------Ausgabe wechseln, wenn kein MA (=Start) gewählt ist-------------//
+
+        //-----------Ausgabe wechseln, wenn kein MA zB beim Start zur Anzeige gewählt ist-------------//
         var Infobereich = 0;
         if (Infobereich == 0) {
             //neuen Infobereich für den HTML-Austausch erstellen
@@ -192,8 +211,9 @@ function changeHTMLGame() {
             document.getElementById("MAposition").textContent = MAdaten.position + "-Support";
             document.getElementById("MAname").textContent = "Mitarbeiter: " + MAdaten.name;
             document.getElementById("MAkategorie").textContent = MAdaten.kategorie;
-            document.getElementById("MAfaehigkeit01").textContent = MAdaten.faehigkeit;
-            document.getElementById("MAaufgabe").textContent = incident.incID + incident.title; //fehlt noch
+            document.getElementById("MAfaehigkeit01").textContent = MAdaten.faehigkeit1;
+            //es fehlen weitere Fähigkeiten anzeigen
+            document.getElementById("MAaufgabe").textContent = "#" + incident.incID + " " + incident.title;
         } 
 
         //----Datenübergabe des angeklickten MAs------//
@@ -233,6 +253,7 @@ function changeHTMLGame() {
 
         //------------Neuankommende Incident ---------------------------//
         var inbox = document.getElementById("inBox");
+        
         //---------------- Funktion um eine Zufallszahl zu generieren -------//
         function rand (min, max) {
             return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -240,93 +261,176 @@ function changeHTMLGame() {
 
         //-------------Methode um Incidentdaten anzuzeigen ------------//
         function IncdatenAnzeigen(daten){
+            if(document.getElementById("noInc").style.visibility=="visible"){
+                document.getElementById("noInc").style.visibility="collapse";
+                document.getElementById("incDetForm").style.visibility="visible";
+                document.getElementById("btn-bearbeiten").style.visibility="visible";
+                document.getElementById("btn-weiterleiten").style.visibility="visible";
+            }
             document.getElementById("incDetTitel").innerText = "#" + daten.incID + " \n "+ daten.title;
             document.getElementById("incDetThema").innerText = daten.thema;
-            document.getElementById("incDetFaell").innerText = "fällig in " + daten.faelligkeit + " Stunden ";
+            if (daten.faelligkeit == 1){
+                document.getElementById("incDetFaell").innerText = "fällig in " + daten.faelligkeit + " Stunde ";   
+            }else{
+                document.getElementById("incDetFaell").innerText = "fällig in " + daten.faelligkeit + " Stunden ";
+            }
             document.getElementById("incDetPrio").value  = daten.prioritaet;
             document.getElementById("incDetKat").value  = daten.kategorie;
             document.getElementById("incDetBea").innerText = daten.bearbeiter;
         }
 
-        
-        //---------Methode für neu einzutreffende Incidents in die InBox --- //
-        var incMax = rand(1,4); //-------- bis zu maximal 4 neue Incidents ----//
-        var incInBox = false;
-        if(inbox.childNodes.length <= 4){ //----- In der Inbox sollen höchstens 4 Incidents sin ---- /
-            var incCount = inbox.childNodes.length;
-            for(var x=0; x<Object.keys(incidents).length;x++){ //--- Schleife die alle Incidents kontrolliert --- //
-                if(incidents[x].status == "neu"){   //--- Kontrolliert, ob der aktuelle Incident noch auf status neu steht---//
-                    for(y=0; y < inbox.childNodes.length; y++){ //--- Geht alle vorhandenen Incidents in der Inbox durch ---- //
-                        if(inbox.childNodes[y].value == incidents[x].incID){ /// Vergleich, ob der aktuelle Incidents bereits in der Inbox ist
-                            incInBox = true;
-                        }
+        ///-----------------------zentrale Function um Incidentdaten zu ändern -----//
+        function IncDatenAendern(incID,erstellungsdatum,status, prioritaet,bearbeitungsstand,kundenzufriedenheit,bearbeitungsdauer, bearbeiter, kategorie){
+            for(i=0;i<Object.keys(incidents).length;i++){
+                if(incidents[i].incID == incID){
+                    if(typeof erstellungsdatum != 'undefined' || erstellungsdatum != "" ){
+                        incidents[i].erstellungdatum = erstellungsdatum;
                     }
-                    if( incInBox == false){
-
-                    //--------- ein Incident besteh aus einem Div und einem IMG ----/
-                        var newIncident = document.createElement("div");
-                        var incidentImg = document.createElement("img");
-                        //--------- Eigenschaften hinzufügen----//
-                        newIncident.id = x;
-                        newIncident.value = incidents[x].incID;
-                        newIncident.style.float = "left";
-                        incidentImg.src = "img/icons8-dokument-64.png";
-                        newIncident.appendChild(incidentImg);
-                        //------Funktion zum inhalt der Incidents hinzufügen ---//
-                        newIncident.onclick = function () {
-                            var incident = incidents[this.id];
-                            IncdatenAnzeigen(incidents[this.id]);
-                        }
-                        inbox.appendChild(newIncident);
-                        incInBox = false;
-                        incCount++;
-                        if(incCount > incMax){
-                            x=Object.keys(incidents).length;
-                        }
+                    if(typeof status != 'undefined' || status != "" ){
+                        incidents[i].status = status;
                     }
+                    if(typeof prioritaet != 'undefined' || prioritaet != ""){
+                        incidents[i].prioritaet = prioritaet;
+                    }
+                    if(typeof bearbeitungsstand != 'undefined' || bearbeitungsstand != ""){
+                        incidents[i].bearbeitungsstand = bearbeitungsstand;
+                    }
+                    if(typeof kundenzufriedenheit != 'undefined' || kundenzufriedenheit != ""){
+                        incidents[i].kundenzufriedenheit = kundenzufriedenheit;
+                    }
+                    if(typeof bearbeitungsdauer != 'undefined' || bearbeitungsdauer != ""){
+                        incidents[i].bearbeitungsdauer = bearbeitungsdauer;
+                    }
+                    if(typeof bearbeiter != 'undefined' || bearbeiter != ""){
+                        incidents[i].bearbeiter = bearbeiter;
+                    }
+                    if(typeof kategorie != 'undefined' || kategorie != ""){
+                        incidents[i].kategorie = kategorie;
+                    }
+                    i=Object.keys(incidents).length;
                 }
             }
         }
 
+        ///--------------------- Function um Incidents aus der InBox zu entfernen -----------//
+        function IncRemoveInbox(incID){
+            document.getElementById("inBox").removeChild(document.getElementById(incID));
+            //---- Incident bereich wird ggf. wieder geleert ----/
+            if(document.getElementById("inBox").childElementCount == 0){
+                document.getElementById("incDetTitel").innerHTML = "";
+                document.getElementById("noInc").style.visibility="visible";
+                document.getElementById("incDetForm").style.visibility="hidden";
+                document.getElementById("btn-bearbeiten").style.visibility="hidden";
+                document.getElementById("btn-weiterleiten").style.visibility="hidden";
+            }
+        }
         //-----------------Incident 1st-Level zuweisen und Daten im Arbeitsbereich anzeigen---------------------//
-        var buttonBearbeiten = document.getElementById("btn-bearbeiten");
+        var buttonBearbeiten = document.getElementById("btn-bearbeiten"); 
         buttonBearbeiten.onclick = function () {
-            //nimm aktive Incident-Daten entgegen
-            IncFirstLevel = incidents[0]; //Test incident[0] = aktiver Incident
-            console.log(incidents[0]);
-            document.getElementById("IncTitel").textContent = "#" + IncFirstLevel.incID + " " + IncFirstLevel.title;
-            document.getElementById("Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncFirstLevel.faelligkeit + " Runden";
-            document.getElementById("Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
-            /* es fehlt noch
-            - Berechnung Runden in Stunden
-            - entferne den Incident aus dem Eingang */
+            if (IncFirstBearbeitung == 0){
+                //nimm aktive Incident-Daten entgegen
+                IncFirstLevel = Incaktuell;
+                document.getElementById("IncTitel").textContent = "#" + IncFirstLevel.incID + " " + IncFirstLevel.title;
+                document.getElementById("Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncFirstLevel.faelligkeit + " Runden";
+                document.getElementById("Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
+                IncFirstBearbeitung = 1;
+                IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","","",supportMitarbeiter[0].name,document.getElementById("incDetKat").value);
+                IncRemoveInbox(Incaktuell.incID);
+            }else{
+                alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
+            }
         }
 
         //-----------------Incident 2nd-Level zuweisen und Daten im Arbeitsbereich anzeigen---------------------//
         var buttonWeiterleiten = document.getElementById("btn-weiterleiten");
         buttonWeiterleiten.onclick = function () {
-            //nimm aktive Incident-Daten entgegen
-            IncSecondLevel01 = incidents[1]; //Test incident[1] = aktiver Incident
+            //--------Vergleich IncidentKategorie mit MA-Kategorie als IDs----------//
+            //-----------Weise Incident dem MA zu, wenn die Kategorien identisch sind und er noch keinen Incident bearbeitet-------------//
+            if (incDetKat.value == supportMitarbeiter[1].kategorieID){
+                if (IncSecBearbeitung01 == 0){
+                    //nimm aktive Incident-Daten entgegen
+                    IncSecondLevel01 = Incaktuell;
+                    document.getElementById("Sec01IncTitel").textContent = "#" + IncSecondLevel01.incID + " " + IncSecondLevel01.title;
+                    document.getElementById("Sec01Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel01.faelligkeit + " Runden";
+                    document.getElementById("Sec01Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
+                    IncSecBearbeitung01 =1;
+                    IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","","",supportMitarbeiter[1].name,document.getElementById("incDetKat").value);
+                    IncRemoveInbox(Incaktuell.incID);
+                }else{
+                    alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
+                }
+            }else if (incDetKat.value == supportMitarbeiter[2].kategorieID){
+                if (IncSecBearbeitung02 == 0){
+                    IncSecondLevel02 = Incaktuell; 
+                    document.getElementById("Sec02IncTitel").textContent = "#" + IncSecondLevel02.incID + " " + IncSecondLevel02.title;
+                    document.getElementById("Sec02Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel02.faelligkeit + " Runden";
+                    document.getElementById("Sec02Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
+                    IncSecBearbeitung02 =1;
+                    IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","","",supportMitarbeiter[2].name,document.getElementById("incDetKat").value);
+                    IncRemoveInbox(Incaktuell.incID);
+                }else{
+                    alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
+                }
+            }else if (incDetKat.value == supportMitarbeiter[3].kategorieID){
+                if (IncSecBearbeitung03 == 0){
+                    IncSecondLevel03 = Incaktuell; 
+                    document.getElementById("Sec03IncTitel").textContent = "#" + IncSecondLevel03.incID + " " + IncSecondLevel03.title;
+                    document.getElementById("Sec03Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel03.faelligkeit + " Runden";
+                    document.getElementById("Sec03Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
+                    IncSecBearbeitung03 =1;
+                    IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","","",supportMitarbeiter[3].name,document.getElementById("incDetKat").value);
+                    IncRemoveInbox(Incaktuell.incID);
+                }else{
+                    alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
+                }
+            }else{
+                alert("Kategorie stimmt mit MA nicht überein.")
+            }
 
-            document.getElementById("Sec01IncTitel").textContent = "#" + IncSecondLevel01.incID + " " + IncSecondLevel01.title;
-            document.getElementById("Sec01Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel01.faelligkeit + " Runden";
-            document.getElementById("Sec01Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
-
-            IncSecondLevel02 = incidents[2]; //Test incident[2] = aktiver Incident
-            document.getElementById("Sec02IncTitel").textContent = "#" + IncSecondLevel02.incID + " " + IncSecondLevel01.title;
-            document.getElementById("Sec02Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel02.faelligkeit + " Runden";
-            document.getElementById("Sec02Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
-
-            IncSecondLevel03 = incidents[3]; //Test incident[3] = aktiver Incident
-            document.getElementById("Sec03IncTitel").textContent = "#" + IncSecondLevel03.incID + " " + IncSecondLevel01.title;
-            document.getElementById("Sec03Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel03.faelligkeit + " Runden";
-            document.getElementById("Sec03Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
-
-            /* es fehlt noch
-            - wenn Button geklickt, dann vergleiche Kategorie Inc mit MA-Kategori
-            - weise Inc an den betroffenen MA zu (nimm IncSecondLevelXX (XX ist je nach MA 01, 02, 03)) 
+            /* es fehlt noch 
             - entferne den Incident aus dem Eingang */
         }
+
+         //---------Methode für neu einzutreffende Incidents in die InBox --- //
+         var incMax = rand(6,8); //-------- bis zu maximal 4 neue Incidents ----//
+         var incInBox = false;
+         if(inbox.childNodes.length <= 8){ //----- In der Inbox sollen höchstens 4 Incidents sin ---- /
+             var incCount = inbox.childNodes.length;
+             for(var x=0; x<Object.keys(incidents).length;x++){ //--- Schleife die alle Incidents kontrolliert --- //
+                 if(incidents[x].status == "neu"){   //--- Kontrolliert, ob der aktuelle Incident noch auf status neu steht---//
+                     for(y=0; y < inbox.childNodes.length; y++){ //--- Geht alle vorhandenen Incidents in der Inbox durch ---- //
+                         if(inbox.childNodes[y].value == incidents[x].incID){ /// Vergleich, ob der aktuelle Incidents bereits in der Inbox ist
+                             incInBox = true;
+                         }
+                     }
+                     if( incInBox == false){
+ 
+                     //--------- ein Incident besteh aus einem Div und einem IMG ----/
+                         var newIncident = document.createElement("div");
+                         var incidentImg = document.createElement("img");
+                         //--------- Eigenschaften hinzufügen----//
+                         newIncident.id = incidents[x].incID;
+                         newIncident.value = x;
+                         newIncident.style.float = "left";
+                         incidentImg.src = "img/icons8-dokument-64.png";
+                         newIncident.appendChild(incidentImg);
+                         //------Funktion zum inhalt der Incidents hinzufügen ---//
+                         newIncident.onclick = function () {
+                             //var incident = incidents[this.id];
+                             IncdatenAnzeigen(incidents[this.value]);
+                             Incaktuell = incidents[this.value];
+                             //console.log(incidents[this.id]);//aktueller Incident
+                         }
+                         inbox.appendChild(newIncident);
+                         incInBox = false;
+                         incCount++;
+                         if(incCount > incMax){
+                             x=Object.keys(incidents).length;
+                         }
+                     }
+                 }
+             }
+         }
     })
     
 }//ENDE Game

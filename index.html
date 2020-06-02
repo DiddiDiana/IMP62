@@ -22,9 +22,13 @@
 					<img src="img/Logo_Planspiel.png">
 				</div>
 				<div class="col-md-3">
-					<label class="btn box"><i class="far fa-clock"></i></label>
-					<!-- JS-Variable eingeben und Spielphase anzeigen -->
-					<label class="form-control spielphase" for="">Spielphase</label>
+					<div>
+						<div>
+							<label class="btn box" id="timer"><i class="far fa-clock" ></i></label>
+							<!-- JS-Variable eingeben und Spielphase anzeigen -->
+							<label class="form-control spielphase"  for="">Spielphase</label>
+						</div>
+					</div>
 				</div>
 				<div class="col-md-4">
 					<img src="img/Smiley_grün_512px.png" width="50" height="auto">
@@ -105,19 +109,18 @@
 				<!-- Anzeige Incident Eingang und Daten -->
 				<section class="col-md-4 card">
 					<h2 class="card-title">Incidentbereich</h2>
-					<div id="incbereich" class="card-body">
-						<!-- Platzhalter Eingang: ein Symbol je eingehendem Incident der nicht zugeiwesen ist -->
 						<div id="incbereich" class="card-body">
 							<!-- Platzhalter Eingang: ein Symbol je eingehendem Incident der nicht zugeiwesen ist -->
-							<div id="inBox"style="display:block; margin-bottom:80px;">
+							<div id="inBox"style="display:block; margin-bottom:140px;">
 							</div>
 							<!-- Zeigt beim Klick auf ein Incident-Symbol dessen Daten an -->
-							<form class="card-body">
+							<form class="card-body" >
 								<div class="d-flex">
 									<img src="img/icons8-dokument-64.png">
+									<p id="noInc" style="visibility: visible">Aktuell ist kein Incident gewählt.</p>
 									<h3 id="incDetTitel"><!--#123 <br>Test-Titel--></h3> <!-- zeigt Incident-ID & -Titel laut DB an -->
 								</div>
-								<ul class="list-group list-group-flush">
+								<ul class="list-group list-group-flush" id="incDetForm" style="visibility: hidden">
 									<li class="list-group-item d-lg-flex">Thema:
 										<p id="incDetThema" class="ml-1"><!--Incident-Thema Test--></p>
 									</li>
@@ -135,8 +138,8 @@
 									</li>
 								</ul>
 								<div class="d-lg-flex justify-content-center">
-									<input type="button" value="bearbeiten" class="btn mr-2 mt-2" id="btn-bearbeiten"></input>
-									<input type="button" value="weiterleiten" class="btn mt-2" id="btn-weiterleiten"></input>
+									<input type="button" value="bearbeiten" class="btn mr-2 mt-2" id="btn-bearbeiten" style="visibility: hidden"></input>
+									<input type="button" value="weiterleiten" class="btn mt-2" id="btn-weiterleiten" style="visibility: hidden"></input>
 								</div>
 							</form>
 						</div>
