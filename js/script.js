@@ -5,11 +5,6 @@ var spiel;
 var kategorie;
 var prio;
 
-var IncFirstLevel;          //1st-Level zugewiesener Incident
-var IncSecondLevel01;       //2nd-Level zugewiesener Incident
-var IncSecondLevel02;       //...
-var IncSecondLevel03;       //...
-
 var Incaktuell; //speichert aktuell gewählten Incident des Incidentbereichs
 var IncFirstBearbeitung = 0; //speichert Bearbeitung des First-Level (zu Beginn leer)
 var IncSecBearbeitung01 = 0; //speichert Bearbeitung des Second-Level (zu Beginn leer)
@@ -207,7 +202,7 @@ function changeHTMLGame() {
         var secondLevelMitarbeiter03 = document.getElementById("secondLevel03");
 
         //-------zentrale Methode zur Anzeige der MA-Daten im Infobereich-------//
-        function MAdatenAnzeigen(MAdaten, incident){
+        function MAdatenAnzeigen(MAdaten){
             document.getElementById("MAposition").textContent = MAdaten.position + "-Support";
             document.getElementById("MAname").textContent = "Mitarbeiter: " + MAdaten.name;
             document.getElementById("MAkategorie").textContent = MAdaten.kategorie;
@@ -222,32 +217,28 @@ function changeHTMLGame() {
             $.get('infobereich.html', function (data) {
                 $('#newInfobereich').html(data);
                 var mitarbeiter = supportMitarbeiter[0];
-                var incident = IncFirstLevel;
-                MAdatenAnzeigen(mitarbeiter, incident);
+                MAdatenAnzeigen(mitarbeiter);
             })
         } 
         secondLevelMitarbeiter01.onclick = function (){
             $.get('infobereich.html', function (data) {
                 $('#newInfobereich').html(data);
                 var mitarbeiter = supportMitarbeiter[1];
-                var incident = IncSecondLevel01;
-                MAdatenAnzeigen(mitarbeiter, incident);
+                MAdatenAnzeigen(mitarbeiter);
             })
         } 
         secondLevelMitarbeiter02.onclick = function (){
             $.get('infobereich.html', function (data) {
                 $('#newInfobereich').html(data);
                 var mitarbeiter = supportMitarbeiter[2];
-                var incident = IncSecondLevel02;
-                MAdatenAnzeigen(mitarbeiter, incident);
+                MAdatenAnzeigen(mitarbeiter);
             })
         }
         secondLevelMitarbeiter03.onclick = function (){
             $.get('infobereich.html', function (data) {
                 $('#newInfobereich').html(data);
                 var mitarbeiter = supportMitarbeiter[3];
-                var incident = IncSecondLevel03;
-                MAdatenAnzeigen(mitarbeiter, incident);
+                MAdatenAnzeigen(mitarbeiter);
             })
         } 
 
@@ -324,19 +315,22 @@ function changeHTMLGame() {
                 document.getElementById("btn-weiterleiten").style.visibility="hidden";
             }
         }
+        
         //-----------------Incident 1st-Level zuweisen und Daten im Arbeitsbereich anzeigen---------------------//
         var buttonBearbeiten = document.getElementById("btn-bearbeiten"); 
         buttonBearbeiten.onclick = function () {
-            if (IncFirstBearbeitung == 0){
-                //nimm aktive Incident-Daten entgegen
-                IncFirstLevel = Incaktuell;
-                document.getElementById("IncTitel").textContent = "#" + IncFirstLevel.incID + " " + IncFirstLevel.title;
-                document.getElementById("Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncFirstLevel.faelligkeit + " Runden";
-                document.getElementById("Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
+            if (IncFirstBearbeitung == 0){//wenn MA noch keinen Incident bearbeitet
+                supportMitarbeiter[0].zugewiesenerIncident = Incaktuell; //speichere aktuellen Incident für diesen MA
+                document.getElementById("IncTitel").textContent = "#" + supportMitarbeiter[0].zugewiesenerIncident.incID + " " + supportMitarbeiter[0].zugewiesenerIncident.title;
+                document.getElementById("Faelligkeit").textContent = "<in Bearbeitung> fällig in " + supportMitarbeiter[0].zugewiesenerIncident.faelligkeit + " Runden";
+                IncBearbeitung(0);
+                document.getElementById("Bearbeitungsstand").textContent = "Bearbeitungsstand: 0%";
                 IncFirstBearbeitung = 1;
-                IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","","",supportMitarbeiter[0].name,document.getElementById("incDetKat").value);
+                //--------FEHLER!!!!!!!!!entfernt falschen Incident aus der Inbox-------//
+                IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","",Incaktuell.bearbeitungsdauer,supportMitarbeiter[0].name,document.getElementById("incDetKat").value);
                 IncRemoveInbox(Incaktuell.incID);
-            }else{
+                
+            }else{//wenn MA bereits einen Incident bearbeitet
                 alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
             }
         }
@@ -347,38 +341,43 @@ function changeHTMLGame() {
             //--------Vergleich IncidentKategorie mit MA-Kategorie als IDs----------//
             //-----------Weise Incident dem MA zu, wenn die Kategorien identisch sind und er noch keinen Incident bearbeitet-------------//
             if (incDetKat.value == supportMitarbeiter[1].kategorieID){
-                if (IncSecBearbeitung01 == 0){
-                    //nimm aktive Incident-Daten entgegen
-                    IncSecondLevel01 = Incaktuell;
-                    document.getElementById("Sec01IncTitel").textContent = "#" + IncSecondLevel01.incID + " " + IncSecondLevel01.title;
-                    document.getElementById("Sec01Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel01.faelligkeit + " Runden";
-                    document.getElementById("Sec01Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
+                if (IncSecBearbeitung01 == 0){//wenn MA noch keinen Incident bearbeitet
+                    supportMitarbeiter[1].zugewiesenerIncident = Incaktuell;//speichere aktuellen Incident für diesen MA
+                    document.getElementById("Sec01IncTitel").textContent = "#" + supportMitarbeiter[1].zugewiesenerIncident.incID + " " + supportMitarbeiter[1].zugewiesenerIncident.title;
+                    document.getElementById("Sec01Faelligkeit").textContent = "<in Bearbeitung> fällig in " + supportMitarbeiter[1].zugewiesenerIncident.faelligkeit + " Runden";
+                    IncBearbeitung(1);
+                    document.getElementById("Sec01Bearbeitungsstand").textContent = "Bearbeitungsstand: 0%";
                     IncSecBearbeitung01 =1;
-                    IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","","",supportMitarbeiter[1].name,document.getElementById("incDetKat").value);
+                    //--------FEHLER!!!!!!!!!entfernt falschen Incident aus der Inbox-------//
+                    IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","",Incaktuell.bearbeitungsdauer,supportMitarbeiter[1].name,document.getElementById("incDetKat").value);
                     IncRemoveInbox(Incaktuell.incID);
-                }else{
+                }else{//wenn MA bereits einen Incident bearbeitet
                     alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
                 }
             }else if (incDetKat.value == supportMitarbeiter[2].kategorieID){
                 if (IncSecBearbeitung02 == 0){
-                    IncSecondLevel02 = Incaktuell; 
-                    document.getElementById("Sec02IncTitel").textContent = "#" + IncSecondLevel02.incID + " " + IncSecondLevel02.title;
-                    document.getElementById("Sec02Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel02.faelligkeit + " Runden";
-                    document.getElementById("Sec02Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
+                    supportMitarbeiter[2].zugewiesenerIncident = Incaktuell;//speichere aktuellen Incident für diesen MA
+                    document.getElementById("Sec02IncTitel").textContent = "#" + supportMitarbeiter[2].zugewiesenerIncident.incID + " " + supportMitarbeiter[2].zugewiesenerIncident.title;
+                    document.getElementById("Sec02Faelligkeit").textContent = "<in Bearbeitung> fällig in " + supportMitarbeiter[2].zugewiesenerIncident.faelligkeit + " Runden";
+                    IncBearbeitung(2);
+                    document.getElementById("Sec02Bearbeitungsstand").textContent = "Bearbeitungsstand: 0%";
                     IncSecBearbeitung02 =1;
-                    IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","","",supportMitarbeiter[2].name,document.getElementById("incDetKat").value);
+                    //--------FEHLER!!!!!!!!!entfernt falschen Incident aus der Inbox-------//
+                    IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","",Incaktuell.bearbeitungsdauer,supportMitarbeiter[2].name,document.getElementById("incDetKat").value);
                     IncRemoveInbox(Incaktuell.incID);
                 }else{
                     alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
                 }
             }else if (incDetKat.value == supportMitarbeiter[3].kategorieID){
                 if (IncSecBearbeitung03 == 0){
-                    IncSecondLevel03 = Incaktuell; 
-                    document.getElementById("Sec03IncTitel").textContent = "#" + IncSecondLevel03.incID + " " + IncSecondLevel03.title;
-                    document.getElementById("Sec03Faelligkeit").textContent = "<in Bearbeitung> fällig in " + IncSecondLevel03.faelligkeit + " Runden";
-                    document.getElementById("Sec03Bearbeitungsstand").textContent = "Bearbeitungsstand: X%";
+                    supportMitarbeiter[3].zugewiesenerIncident = Incaktuell; //speichere aktuellen Incident für diesen MA
+                    document.getElementById("Sec03IncTitel").textContent = "#" + supportMitarbeiter[3].zugewiesenerIncident.incID + " " + supportMitarbeiter[3].zugewiesenerIncident.title;
+                    document.getElementById("Sec03Faelligkeit").textContent = "<in Bearbeitung> fällig in " + supportMitarbeiter[3].zugewiesenerIncident.faelligkeit + " Runden";
+                    IncBearbeitung(3);
+                    document.getElementById("Sec03Bearbeitungsstand").textContent = "Bearbeitungsstand: 0%";
                     IncSecBearbeitung03 =1;
-                    IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","","",supportMitarbeiter[3].name,document.getElementById("incDetKat").value);
+                    //--------FEHLER!!!!!!!!!entfernt falschen Incident aus der Inbox-------//
+                    IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","",Incaktuell.bearbeitungsdauer,supportMitarbeiter[3].name,document.getElementById("incDetKat").value);
                     IncRemoveInbox(Incaktuell.incID);
                 }else{
                     alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
@@ -389,7 +388,46 @@ function changeHTMLGame() {
 
             /* es fehlt noch 
             - entferne den Incident aus dem Eingang */
+        }//ENDE Weiterleiten
+
+        //-----Bearbeitung berechnen-----//
+        function IncBearbeitung(mitarbeiter){
+            var start = Date.now();      
+            function BerechneBearbeitung() {           
+                var diff = Date.now() - start;
+                var IncBearbeitungsdauer = Incaktuell.bearbeitungsdauer * 10000; //in ms -> Speicherung in DB als InGame Stunden (1h = 10sek = 10000ms)
+                console.log(diff);
+                console.log(IncBearbeitungsdauer);
+                if (mitarbeiter == 0){
+                    supportMitarbeiter[0].bearbeitungsstand = prozent_runden((diff/IncBearbeitungsdauer)*100);
+                    document.getElementById("Bearbeitungsstand").textContent = "Bearbeitungsstand: " + supportMitarbeiter[0].bearbeitungsstand; //Ausgabe am First-Level
+                }else if (mitarbeiter == 1){
+                    supportMitarbeiter[1].bearbeitungsstand = prozent_runden((diff/IncBearbeitungsdauer)*100);
+                    document.getElementById("Sec01Bearbeitungsstand").textContent = "Bearbeitungsstand: " + supportMitarbeiter[1].bearbeitungsstand; //Ausgabe am Second-Level
+                }else if (mitarbeiter == 2){
+                    supportMitarbeiter[2].bearbeitungsstand = prozent_runden((diff/IncBearbeitungsdauer)*100);
+                    document.getElementById("Sec02Bearbeitungsstand").textContent = "Bearbeitungsstand: " + supportMitarbeiter[2].bearbeitungsstand; //Ausgabe am Second-Level
+                }else if (mitarbeiter == 3){
+                    supportMitarbeiter[3].bearbeitungsstand = prozent_runden((diff/IncBearbeitungsdauer)*100);
+                    document.getElementById("Sec03Bearbeitungsstand").textContent = "Bearbeitungsstand: " + supportMitarbeiter[3].bearbeitungsstand; //Ausgabe am Second-Level
+                }
+                if (diff >= IncBearbeitungsdauer){
+                    clearInterval(timerBearbeitung);
+                }
+            }
+            var timerBearbeitung = setInterval(BerechneBearbeitung, 1000);
         }
+
+        function prozent_runden(quelle){
+            var wert=Math.round(quelle*10);
+            var wert2=wert/10;
+            var wert3=wert2-Math.round(wert2);
+            if (wert3==0){
+                return wert2 + "." + wert3 + "%";
+                }else{
+                return wert2 + "%";
+                }
+            }
 
          //---------Methode für neu einzutreffende Incidents in die InBox --- //
          var incMax = rand(6,8); //-------- bis zu maximal 4 neue Incidents ----//
