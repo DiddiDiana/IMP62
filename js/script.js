@@ -4,7 +4,12 @@ var incidents;              //alle Daten aller Incident
 var spiel;                  
 var kategorie;
 var prio;
-
+var phase = {startTime: 0, elapsedTime: 0};
+var phaseNumb = 1;
+var phasen = [];
+for (p=0; p<=11;p++){
+    phasen[p] = phase;
+}
 var Incaktuell; //speichert aktuell gewählten Incident des Incidentbereichs
 var IncFirstBearbeitung = 0; //speichert Bearbeitung des First-Level (zu Beginn leer)
 var IncSecBearbeitung01 = 0; //speichert Bearbeitung des Second-Level (zu Beginn leer)
@@ -139,12 +144,19 @@ function changeHTMLGame() {
         timer();
         /// Timer Funktion für die Spielrundenberechnung----/
         function timer() {
-            var startTime = Date.now();
-        
+            phasen[phaseNumb].startTime = Date.now();
+            //var startTime = Date.now();
             var interval = setInterval(function() {
-               var elapsedTime = Date.now() - startTime;
-               document.getElementById('timer').innerHTML = (elapsedTime / 1000).toFixed(0);
-            }, 5000);
+            phasen[phaseNumb].elapsedTime = Date.now() - phasen[phaseNumb].startTime;
+            //var elapsedTime = Date.now() - startTime;
+                if(phasen[phaseNumb].elapsedTime >= 240000){
+                    phaseNumb++;
+                    document.getElementById("spielphase").innerHTML = "Spielphase " + phaseNumb;
+                    document.getElementById('timer').innerHTML = "0 Std.";
+                }else{
+                    document.getElementById('timer').innerHTML = (phasen[phaseNumb].elapsedTime / 10000).toFixed(0) + " Std.";                
+                }
+            }, 10000);
         }
 
 
@@ -274,28 +286,28 @@ function changeHTMLGame() {
         function IncDatenAendern(incID,erstellungsdatum,status, prioritaet,bearbeitungsstand,kundenzufriedenheit,bearbeitungsdauer, bearbeiter, kategorie){
             for(i=0;i<Object.keys(incidents).length;i++){
                 if(incidents[i].incID == incID){
-                    if(typeof erstellungsdatum != 'undefined' || erstellungsdatum != "" ){
+                    if(erstellungsdatum != null ){
                         incidents[i].erstellungdatum = erstellungsdatum;
                     }
-                    if(typeof status != 'undefined' || status != "" ){
+                    if(status != null ){
                         incidents[i].status = status;
                     }
-                    if(typeof prioritaet != 'undefined' || prioritaet != ""){
+                    if(prioritaet != null){
                         incidents[i].prioritaet = prioritaet;
                     }
-                    if(typeof bearbeitungsstand != 'undefined' || bearbeitungsstand != ""){
+                    if(bearbeitungsstand != null){
                         incidents[i].bearbeitungsstand = bearbeitungsstand;
                     }
-                    if(typeof kundenzufriedenheit != 'undefined' || kundenzufriedenheit != ""){
+                    if(kundenzufriedenheit != null){
                         incidents[i].kundenzufriedenheit = kundenzufriedenheit;
                     }
-                    if(typeof bearbeitungsdauer != 'undefined' || bearbeitungsdauer != ""){
+                    if(bearbeitungsdauer != null){
                         incidents[i].bearbeitungsdauer = bearbeitungsdauer;
                     }
-                    if(typeof bearbeiter != 'undefined' || bearbeiter != ""){
+                    if(bearbeiter != null){
                         incidents[i].bearbeiter = bearbeiter;
                     }
-                    if(typeof kategorie != 'undefined' || kategorie != ""){
+                    if(kategorie != null){
                         incidents[i].kategorie = kategorie;
                     }
                     i=Object.keys(incidents).length;
@@ -327,7 +339,7 @@ function changeHTMLGame() {
                 document.getElementById("Bearbeitungsstand").textContent = "Bearbeitungsstand: 0%";
                 IncFirstBearbeitung = 1;
                 //--------FEHLER!!!!!!!!!entfernt falschen Incident aus der Inbox-------//
-                IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","",Incaktuell.bearbeitungsdauer,supportMitarbeiter[0].name,document.getElementById("incDetKat").value);
+                IncDatenAendern(Incaktuell.incID,null,"in Bearbeitung",document.getElementById("incDetPrio").value ,null,null,Incaktuell.bearbeitungsdauer,supportMitarbeiter[0].name,document.getElementById("incDetKat").value);
                 IncRemoveInbox(Incaktuell.incID);
                 
             }else{//wenn MA bereits einen Incident bearbeitet
@@ -349,7 +361,7 @@ function changeHTMLGame() {
                     document.getElementById("Sec01Bearbeitungsstand").textContent = "Bearbeitungsstand: 0%";
                     IncSecBearbeitung01 =1;
                     //--------FEHLER!!!!!!!!!entfernt falschen Incident aus der Inbox-------//
-                    IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","",Incaktuell.bearbeitungsdauer,supportMitarbeiter[1].name,document.getElementById("incDetKat").value);
+                    IncDatenAendern(Incaktuell.incID,null,"in Bearbeitung",document.getElementById("incDetPrio").value ,null,null,Incaktuell.bearbeitungsdauer,supportMitarbeiter[1].name,document.getElementById("incDetKat").value);
                     IncRemoveInbox(Incaktuell.incID);
                 }else{//wenn MA bereits einen Incident bearbeitet
                     alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
@@ -363,7 +375,7 @@ function changeHTMLGame() {
                     document.getElementById("Sec02Bearbeitungsstand").textContent = "Bearbeitungsstand: 0%";
                     IncSecBearbeitung02 =1;
                     //--------FEHLER!!!!!!!!!entfernt falschen Incident aus der Inbox-------//
-                    IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","",Incaktuell.bearbeitungsdauer,supportMitarbeiter[2].name,document.getElementById("incDetKat").value);
+                    IncDatenAendern(Incaktuell.incID,null,"in Bearbeitung",document.getElementById("incDetPrio").value ,null,null,Incaktuell.bearbeitungsdauer,supportMitarbeiter[2].name,document.getElementById("incDetKat").value);
                     IncRemoveInbox(Incaktuell.incID);
                 }else{
                     alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
@@ -377,7 +389,7 @@ function changeHTMLGame() {
                     document.getElementById("Sec03Bearbeitungsstand").textContent = "Bearbeitungsstand: 0%";
                     IncSecBearbeitung03 =1;
                     //--------FEHLER!!!!!!!!!entfernt falschen Incident aus der Inbox-------//
-                    IncDatenAendern(Incaktuell.incID,"","in Bearbeitung",document.getElementById("incDetPrio").value ,"","",Incaktuell.bearbeitungsdauer,supportMitarbeiter[3].name,document.getElementById("incDetKat").value);
+                    IncDatenAendern(Incaktuell.incID,null,"in Bearbeitung",document.getElementById("incDetPrio").value ,null,null,Incaktuell.bearbeitungsdauer,supportMitarbeiter[3].name,document.getElementById("incDetKat").value);
                     IncRemoveInbox(Incaktuell.incID);
                 }else{
                     alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
