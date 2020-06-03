@@ -59,6 +59,8 @@ spielXhr.onreadystatechange = function() {
         // Aufbau  spiel[Datensatz].spielID, spielphase , runde, anfang, ende, inFaelligkeit, ausFaelligkeit, zaehler
         spiel = JSON.parse(spielXhr.responseText);
         spiel[0].anfang = Date.now();
+        spiel[0].inFaelligkeit = 0;
+        spiel[0].ausFaelligkeit = 0;
         ///----Spiel Objekt um seine Runden erweitern----//
         if(typeof spiel[0].runden === 'undefined'){
             spiel[0].runden = new Array();
@@ -416,13 +418,45 @@ function changeHTMLGame() {
         //-------- Methode um die Faelligkeit zu checken und zu speichern.  ------------------------//
 
         function checkFaelligkeit(SMA){
+            var endTime = Date.now();
+            var faellig;
+            var check = false;
+            incidents.forEach(element => {
+                if(element.incID == supportMitarbeiter[SMA].zugewiesenerIncident.incID){
+                    faellig = Math.round((endTime - element.erstellungsdatum) - (element.faelligkeit * 10000));
+                    if(faellig <= 0){
+                        spiel[0].inFaelligkeit = spiel[0].inFaelligkeit + 1;
+                    }else{
+                        spiel[0].ausFaelligkeit = spiel[0].ausFaelligkeit + 1;
+                    }
+                    check = true;
+
+                    if(SMA == 0){
+                        document.getElementById("IncTitel").textContent = "";
+                        document.getElementById("Faelligkeit").textContent = "";
+                        document.getElementById("Bearbeitungsstand").textContent = "";
+                        IncFirstBearbeitung = 0;
+                    }else{
+                        document.getElementById("Sec0"+SMA+"IncTitel").textContent = "";
+                        document.getElementById("Sec0"+SMA+"Faelligkeit").textContent = "";
+                        document.getElementById("Sec0"+SMA+"Bearbeitungsstand").textContent = "";
+                        window["IncSecBearbeitung0"+SMA] = 0;
+                    }
+                    
+                }
+                IncDatenAendern(Incaktuell.incID,null,"erledigt",null ,null,null,null,null,null);
+            });
+            if(check == true){
+                delete supportMitarbeiter[SMA].zugewiesenerIncident; //speichere aktuellen Incident für diesen MA
+                check = false;  
+                console.log(spiel[0]); 
+            }
             
         }
 
         //-----Bearbeitung berechnen-----//
         function IncBearbeitung(mitarbeiter){
             var start = Date.now();      
-
             function BerechneBearbeitung() {           
                 var diff = Date.now() - start;
                 var IncBearbeitungsdauer = Incaktuell.bearbeitungsdauer * 10000; //in ms -> Speicherung in DB als InGame Stunden (1h = 10sek = 10000ms)
@@ -444,6 +478,7 @@ function changeHTMLGame() {
                     document.getElementById("Sec03Bearbeitungsstand").textContent = "Bearbeitungsstand: " + supportMitarbeiter[3].bearbeitungsstand; //Ausgabe am Second-Level
                 }
                 if (diff >= korrWert){
+                    checkFaelligkeit(mitarbeiter);
                     clearInterval(timerBearbeitung);
                 }
             }
@@ -480,7 +515,8 @@ function changeHTMLGame() {
                     var wert = IncBearbeitungsdauer - (IncBearbeitungsdauer/4);
                     return wert; 
                 }else if(mitarbeiter.level1 == 4){
-                    IncBearbeitungsdauer - (IncBearbeitungsdauer/2);
+                    var wert = IncBearbeitungsdauer - (IncBearbeitungsdauer/2);
+                    return wert;
                 }
                 //prüfe Level (1)Beginner +25%, (2)Gelernter +0, (3)Profi -25%, (4)Experte -50%
             }else if(Incaktuell.fachlichefaehigkeit == mitarbeiter.faehigkeit2){//benötigte Fähigkeit = MA-Fähigkeit 02
@@ -494,7 +530,8 @@ function changeHTMLGame() {
                     var wert = IncBearbeitungsdauer - (IncBearbeitungsdauer/4);
                     return wert; 
                 }else if(mitarbeiter.level1 == 4){
-                    IncBearbeitungsdauer - (IncBearbeitungsdauer/2);
+                    var wert = IncBearbeitungsdauer - (IncBearbeitungsdauer/2);
+                    return wert;
                 }
                 //prüfe Level (1)Beginner +25%, (2)Gelernter +0, (3)Profi -25%, (4)Experte -50%
             }else{//keine fachliche Fähigkeit
@@ -526,15 +563,12 @@ function changeHTMLGame() {
                             newIncident.id = incidents[x].incID;
                             newIncident.value = x;
                             newIncident.style.float = "left";
+                            newIncident.dataset.erstellungsdatum = Date.now();
                             incidentImg.src = "img/icons8-dokument-64.png";
                             newIncident.appendChild(incidentImg);
                             //------Funktion zum inhalt der Incidents hinzufügen ---//
                             newIncident.onclick = function () {
-                                if(incidents[this.value].erstellungsdatum == ""){
-                                    incidents[this.value].erstellungsdatum = Date.now();
-                                }
-                                //console.log(incidents[this.value]);
-                                //var incident = incidents[this.value];
+                                incidents[this.value].erstellungsdatum = this.dataset.erstellungsdatum;
                                 IncdatenAnzeigen(incidents[this.value]);
                                 Incaktuell = incidents[this.value];
                             }
