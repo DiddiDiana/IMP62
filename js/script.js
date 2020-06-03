@@ -4,12 +4,10 @@ var incidents;              //alle Daten aller Incident
 var spiel;                  
 var kategorie;
 var prio;
-var phase = {startTime: 0, elapsedTime: 0};
-var phaseNumb = 1;
-var phasen = [];
-for (p=0; p<=11;p++){
-    phasen[p] = phase;
-}
+var runde = {startTime: 0, elapsedTime: 0};
+var rundNumb = 1;
+//var runden = [];
+
 var Incaktuell; //speichert aktuell gewählten Incident des Incidentbereichs
 var IncFirstBearbeitung = 0; //speichert Bearbeitung des First-Level (zu Beginn leer)
 var IncSecBearbeitung01 = 0; //speichert Bearbeitung des Second-Level (zu Beginn leer)
@@ -56,13 +54,20 @@ spielXhr.send();
 // Antwort des Servers abwarten
 spielXhr.onreadystatechange = function() {
 // Kontroller, ob der Server geantwortet hat
-if (spielXhr.readyState == 4 && spielXhr.status == 200) {
-    // Inhalte der JSON Datei in die Spiel Variable speichern
-    // Aufbau  supportMitarbeiter[Datensatz].spielID, spielphase , runde, anfang, ende, inFaelligkeit, ausFaelligkeit, zaehler
-    spiel = JSON.parse(spielXhr.responseText);
+    if (spielXhr.readyState == 4 && spielXhr.status == 200) {
+        // Inhalte der JSON Datei in die Spiel Variable speichern
+        // Aufbau  spiel[Datensatz].spielID, spielphase , runde, anfang, ende, inFaelligkeit, ausFaelligkeit, zaehler
+        spiel = JSON.parse(spielXhr.responseText);
+        spiel[0].anfang = Date.now();
+        ///----Spiel Objekt um seine Runden erweitern----//
+        if(typeof spiel[0].runden === 'undefined'){
+            spiel[0].runden = new Array();
+            for (r=1; r<=11;r++){
+                spiel[0].runden[r] = runde;
+            }
+        }
     }
 }
-
 //Kategorie Daten holen
 var katXhr = new XMLHttpRequest();
 // PHP Datei fuer Spielinfromationen aus der Datenbank abrufen
@@ -73,7 +78,7 @@ katXhr.onreadystatechange = function() {
 // Kontroller, ob der Server geantwortet hat
 if (katXhr.readyState == 4 && katXhr.status == 200) {
     // Inhalte der JSON Datei in die Kategorie Variable speichern
-    // Aufbau  supportMitarbeiter[Datensatz].kategorieID, name
+    // Aufbau  kategorie[Datensatz].kategorieID, name
     kategorien = JSON.parse(katXhr.responseText);
     }
 }
@@ -138,24 +143,27 @@ function changeHTMLGame() {
     //lade die index.html in den body
     $.get('index.html', function (data) {
         $('body').html(data);
-        
-            console.log(document.getElementById("inBox").children);
-       
+        newIncInbox();
         timer();
         /// Timer Funktion für die Spielrundenberechnung----/
         function timer() {
-            phasen[phaseNumb].startTime = Date.now();
+            // Aufbau  spiel[Datensatz].spielID, spielphase , runde, anfang, ende, inFaelligkeit, ausFaelligkeit, zaehler
             //var startTime = Date.now();
-
             var interval = setInterval(function() {
-            phasen[phaseNumb].elapsedTime = Date.now() - phasen[phaseNumb].startTime;
+            if(rundNumb == 1 && spiel[0].runden[rundNumb].startTime == 0){
+                spiel[0].runden[rundNumb].startTime = spiel[0].anfang;
+            }
+            spiel[0].runden[rundNumb].elapsedTime = Date.now() - spiel[0].runden[rundNumb].startTime;
             //var elapsedTime = Date.now() - startTime;
-                if(phasen[phaseNumb].elapsedTime >= 240000){
-                    phaseNumb++;
-                    document.getElementById("spielphase").innerHTML = "Spielphase " + phaseNumb;
+                if(spiel[0].runden[rundNumb].elapsedTime >= 240000){
+                    rundNumb++;
+                    spiel[0].runde = rundNumb;
+                    spiel[0].runden[rundNumb].startTime = Date.now();
+                    document.getElementById("runde").innerHTML = "Runde " + rundNumb;
                     document.getElementById('timer').innerHTML = "0 Std.";
+                    newIncInbox();
                 }else{
-                    document.getElementById('timer').innerHTML = (phasen[phaseNumb].elapsedTime / 10000).toFixed(0) + " Std.";                
+                    document.getElementById('timer').innerHTML = (spiel[0].runden[rundNumb].elapsedTime / 10000).toFixed(0) + " Std.";                
                 }
             }, 10000);
 
@@ -225,7 +233,6 @@ function changeHTMLGame() {
             for(f=1; f<= Object.keys(MAdaten).length; f++){
                 var controlFA = eval("MAdaten.faehigkeit"+f);
                 if(controlFA != undefined){
-                    console.log(controlFA );
                     document.getElementById("MAfaehigkeit0"+f).textContent = controlFA;
                 }
             }
@@ -265,9 +272,6 @@ function changeHTMLGame() {
             })
         } 
 
-        //------------Neuankommende Incident ---------------------------//
-        var inbox = document.getElementById("inBox");
-        
         //---------------- Funktion um eine Zufallszahl zu generieren -------//
         function rand (min, max) {
             return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -296,9 +300,10 @@ function changeHTMLGame() {
         ///-----------------------zentrale Function um Incidentdaten zu ändern -----//
         function IncDatenAendern(incID,erstellungsdatum,status, prioritaet,bearbeitungsstand,kundenzufriedenheit,bearbeitungsdauer, bearbeiter, kategorie){
             for(i=0;i<Object.keys(incidents).length;i++){
+
                 if(incidents[i].incID == incID){
                     if(erstellungsdatum != null ){
-                        incidents[i].erstellungdatum = erstellungsdatum;
+                        incidents[i].erstellungsdatum = erstellungsdatum;
                     }
                     if(status != null ){
 
@@ -353,7 +358,6 @@ function changeHTMLGame() {
                 IncFirstBearbeitung = 1;
                 IncDatenAendern(Incaktuell.incID,null,"in Bearbeitung",document.getElementById("incDetPrio").value ,null,null,Incaktuell.bearbeitungsdauer,supportMitarbeiter[0].name,document.getElementById("incDetKat").value);
                 IncRemoveInbox(Incaktuell.incID);
-                
             }else{//wenn MA bereits einen Incident bearbeitet
                 alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
             }
@@ -409,9 +413,16 @@ function changeHTMLGame() {
 
         }//ENDE Weiterleiten
 
+        //-------- Methode um die Faelligkeit zu checken und zu speichern.  ------------------------//
+
+        function checkFaelligkeit(SMA){
+            
+        }
+
         //-----Bearbeitung berechnen-----//
         function IncBearbeitung(mitarbeiter){
             var start = Date.now();      
+
             function BerechneBearbeitung() {           
                 var diff = Date.now() - start;
                 var IncBearbeitungsdauer = Incaktuell.bearbeitungsdauer * 10000; //in ms -> Speicherung in DB als InGame Stunden (1h = 10sek = 10000ms)
@@ -439,6 +450,8 @@ function changeHTMLGame() {
             /// ----- Denn Aufruf würde ich über den Spielverlauf Timer machen, damit man eine Bezugsquelle hat. -------------//
             var timerBearbeitung = setInterval(BerechneBearbeitung, 1000);
         }
+
+
 
         function prozent_runden(quelle){
             var wert=Math.round(quelle*10);
@@ -491,45 +504,51 @@ function changeHTMLGame() {
             }
         }
          //---------Methode für neu einzutreffende Incidents in die InBox --- //
-         var incMax = rand(6,8); //-------- bis zu maximal 4 neue Incidents ----//
-         var incInBox = false;
-         if(inbox.childNodes.length <= 8){ //----- In der Inbox sollen höchstens 4 Incidents sin ---- /
-             var incCount = inbox.childNodes.length;
-             for(var x=0; x<Object.keys(incidents).length;x++){ //--- Schleife die alle Incidents kontrolliert --- //
-                 if(incidents[x].status == "neu"){   //--- Kontrolliert, ob der aktuelle Incident noch auf status neu steht---//
-                     for(y=0; y < inbox.childNodes.length; y++){ //--- Geht alle vorhandenen Incidents in der Inbox durch ---- //
-                         if(inbox.childNodes[y].value == incidents[x].incID){ /// Vergleich, ob der aktuelle Incidents bereits in der Inbox ist
-                             incInBox = true;
-                         }
-                     }
-                     if( incInBox == false){
+        function newIncInbox(){
+            var inbox = document.getElementById("inBox");
+            var incMax = rand(6,8); //-------- bis zu maximal 4 neue Incidents ----//
+            if(inbox.childNodes.length <= 8){ //----- In der Inbox sollen höchstens 4 Incidents sin ---- /
+                var incCount = inbox.childNodes.length;
+                for(var x=0; x<Object.keys(incidents).length;x++){ //--- Schleife die alle Incidents kontrolliert --- //
+                    if(incidents[x].status == "neu"){   //--- Kontrolliert, ob der aktuelle Incident noch auf status neu steht---//
+                        var incInBox = false;
+                        for(y=0; y < inbox.childNodes.length; y++){ //--- Geht alle vorhandenen Incidents in der Inbox durch ---- //
+                            if(inbox.childNodes[y].id == incidents[x].incID){ /// Vergleich, ob der aktuelle Incidents bereits in der Inbox ist
+                                incInBox = true;
+                                y = inbox.childNodes.length;
+                            }
+                        }
+                        if( incInBox == false){
  
                      //--------- ein Incident besteh aus einem Div und einem IMG ----/
-                         var newIncident = document.createElement("div");
-                         var incidentImg = document.createElement("img");
-                         //--------- Eigenschaften hinzufügen----//
-                         newIncident.id = incidents[x].incID;
-                         newIncident.value = x;
-                         newIncident.style.float = "left";
-                         incidentImg.src = "img/icons8-dokument-64.png";
-                         newIncident.appendChild(incidentImg);
-                         //------Funktion zum inhalt der Incidents hinzufügen ---//
-                         newIncident.onclick = function () {
-                             //var incident = incidents[this.id];
-                             IncdatenAnzeigen(incidents[this.value]);
-                             Incaktuell = incidents[this.value];
-                             //console.log(incidents[this.id]);//aktueller Incident
-                         }
-                         inbox.appendChild(newIncident);
-                         incInBox = false;
-                         incCount++;
-                         if(incCount > incMax){
-                             x=Object.keys(incidents).length;
-                         }
-                     }
-                 }
-             }
-         }
+                            var newIncident = document.createElement("div");
+                            var incidentImg = document.createElement("img");
+                            newIncident.id = incidents[x].incID;
+                            newIncident.value = x;
+                            newIncident.style.float = "left";
+                            incidentImg.src = "img/icons8-dokument-64.png";
+                            newIncident.appendChild(incidentImg);
+                            //------Funktion zum inhalt der Incidents hinzufügen ---//
+                            newIncident.onclick = function () {
+                                if(incidents[this.value].erstellungsdatum == ""){
+                                    incidents[this.value].erstellungsdatum = Date.now();
+                                }
+                                //console.log(incidents[this.value]);
+                                //var incident = incidents[this.value];
+                                IncdatenAnzeigen(incidents[this.value]);
+                                Incaktuell = incidents[this.value];
+                            }
+                            inbox.appendChild(newIncident);
+                            incInBox = false;
+                            incCount++;
+                            if(incCount > incMax){
+                                x=Object.keys(incidents).length;
+                            }
+                        }  
+                    }
+                }
+            }
+        }
     })
     
 }//ENDE Game
