@@ -190,6 +190,8 @@ function changeHTMLGame() {
                     newIncInbox();
                 }else{
                     document.getElementById('timer').innerHTML =  "<i class='far fa-clock' ></i> " + (spiel[0].runden[rundNumb].elapsedTime / 10000).toFixed(0) + " Std.";                             
+                    AktualisiereFaelligkeit();
+
                 }
             }, 10000);
 
@@ -357,6 +359,7 @@ function changeHTMLGame() {
                 document.getElementById("btn-weiterleiten").style.visibility="hidden";
             //}
         }
+      
         // //--------Logout (manuell)--------//
         // var ButtonLogout = document.getElementById("logout");
         // ButtonLogout.onclick = function () {
@@ -478,6 +481,13 @@ function changeHTMLGame() {
             }
             
         }
+
+/*         function AktualisiereFaelligkeit(){
+            for (f=0; f<=incidents.length; f++){
+                incidents[f].faelligkeit = incidents[f].faelligkeit - (spiel[0].runden[rundNumb].elapsedTime / 10000).toFixed(0);
+                console.log(incidents[f].faelligkeit);
+            }
+        } */
 
         //-----Bearbeitung berechnen-----//
         function IncBearbeitung(mitarbeiter){
