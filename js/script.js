@@ -165,7 +165,8 @@ function changeHTMLGame() {
                     document.getElementById('timer').innerHTML = "0 Std.";
                     newIncInbox();
                 }else{
-                    document.getElementById('timer').innerHTML = (spiel[0].runden[rundNumb].elapsedTime / 10000).toFixed(0) + " Std.";                
+                    document.getElementById('timer').innerHTML = (spiel[0].runden[rundNumb].elapsedTime / 10000).toFixed(0) + " Std.";
+                    AktualisiereFaelligkeit();
                 }
             }, 10000);
 
@@ -453,6 +454,13 @@ function changeHTMLGame() {
             }
             
         }
+
+/*         function AktualisiereFaelligkeit(){
+            for (f=0; f<=incidents.length; f++){
+                incidents[f].faelligkeit = incidents[f].faelligkeit - (spiel[0].runden[rundNumb].elapsedTime / 10000).toFixed(0);
+                console.log(incidents[f].faelligkeit);
+            }
+        } */
 
         //-----Bearbeitung berechnen-----//
         function IncBearbeitung(mitarbeiter){
