@@ -343,7 +343,6 @@ function changeHTMLGame() {
         var buttonBearbeiten = document.getElementById("btn-bearbeiten"); 
         buttonBearbeiten.onclick = function () { //nur 1st-Level zuweisen
             for (f = 0; f <= supportMitarbeiter.length; f++) {
-                console.log(supportMitarbeiter[f].position);
                 if (supportMitarbeiter[f].position == "1st-Level") {
                     //--------Vergleich IncidentKategorie mit MA-Kategorie als IDs----------//
                   //  if (incDetKat.value == supportMitarbeiter[f].kategorieID) {
@@ -356,10 +355,10 @@ function changeHTMLGame() {
                             //html-Elemente zur Anzeige übergeben
                             supportMitarbeiter[f].zugewiesenerIncident = Incaktuell;//speichere aktuellen Incident für diesen MA
                             IncBearbeitungAnzeige(supportMitarbeiter[f].zugewiesenerIncident, IncTitle, IncFaelligkeit, IncBearbeitungsstand);
+                            IncBearbeitungSetzen(f);
                             IncBearbeitung(f);
                             IncDatenAendern(Incaktuell.incID, null, "in Bearbeitung", document.getElementById("incDetPrio").value, null, null, Incaktuell.bearbeitungsdauer, supportMitarbeiter[f].name, document.getElementById("incDetKat").value);
                             IncRemoveInbox(Incaktuell.incID);
-                            IncBearbeitungSetzen(f);
                         } else {
                             alert("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
                         }
@@ -372,7 +371,6 @@ function changeHTMLGame() {
         var buttonWeiterleiten = document.getElementById("btn-weiterleiten");
         buttonWeiterleiten.onclick = function () {
             for (f = 0; f <= supportMitarbeiter.length; f++) {
-                //console.log(supportMitarbeiter[f].position);
                 if (supportMitarbeiter[f].position == "2nd-Level") {
                     //--------Vergleich IncidentKategorie mit MA-Kategorie als IDs----------//
                     if (incDetKat.value == supportMitarbeiter[f].kategorieID) {
@@ -385,10 +383,10 @@ function changeHTMLGame() {
                             //html-Elemente zur Anzeige übergeben
                             supportMitarbeiter[f].zugewiesenerIncident = Incaktuell;//speichere aktuellen Incident für diesen MA
                             IncBearbeitungAnzeige(supportMitarbeiter[f].zugewiesenerIncident, IncTitle, IncFaelligkeit, IncBearbeitungsstand);
+                            IncBearbeitungSetzen(f);
                             IncBearbeitung(f);
                             IncDatenAendern(Incaktuell.incID, null, "in Bearbeitung", document.getElementById("incDetPrio").value, null, null, Incaktuell.bearbeitungsdauer, supportMitarbeiter[f].name, document.getElementById("incDetKat").value);
                             IncRemoveInbox(Incaktuell.incID);
-                            IncBearbeitungSetzen(f);
                         } else {
                             alert("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
                         }
@@ -438,7 +436,7 @@ function changeHTMLGame() {
                         document.getElementById("First00IncTitel").textContent = "";
                         document.getElementById("First00Faelligkeit").textContent = "";
                         document.getElementById("First00Bearbeitungsstand").textContent = "";
-                        IncFirstBearbeitung = 0;
+                        IncFirstBearbeitung00 = 0;
                     }else{
                         document.getElementById("Sec0"+SMA+"IncTitel").textContent = "";
                         document.getElementById("Sec0"+SMA+"Faelligkeit").textContent = "";
