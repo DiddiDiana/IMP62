@@ -12,7 +12,7 @@ var Incaktuell; //speichert aktuell gewählten Incident des Incidentbereichs
 var IncFirstBearbeitung = 0; //speichert Bearbeitung des First-Level (zu Beginn leer)
 var IncSecBearbeitung01 = 0; //speichert Bearbeitung des Second-Level (zu Beginn leer)
 var IncSecBearbeitung02 = 0; //speichert Bearbeitung des Second-Level (zu Beginn leer)
-var IncSecBearbeitung03 = 0; //speichert Bearbeitung des Second-Level (zu Beginn leer)
+var IncSecBearbeitung03 = 0; //speichert Bearbeitung des Second-Level (zu Beginn leer) 
 
 //-------- Daten aus der Datenbank holen ---------//
 //Support-Mitarbeiter Daten holen
@@ -171,7 +171,6 @@ function changeHTMLGame() {
 
         }
 
-
         //-----------Ausgabe wechseln, wenn kein MA zB beim Start zur Anzeige gewählt ist-------------//
         var Infobereich = 0;
         if (Infobereich == 0) {
@@ -213,65 +212,51 @@ function changeHTMLGame() {
             incDetPrio.options[pc] = prioOpt;
         }
 
-        //--------Mitarbeiternamen anzeigen (Start)----------//
-        document.getElementById("firstLevel01name").textContent = supportMitarbeiter[0].name;
-        document.getElementById("secondLevel01name").textContent = supportMitarbeiter[1].name;
-        document.getElementById("secondLevel02name").textContent = supportMitarbeiter[2].name;
-        document.getElementById("secondLevel03name").textContent = supportMitarbeiter[3].name;
+         //--------Mitarbeiternamen im Arbeitsbereich (Kachel) anzeigen (Start)----------//
+         for (f=0; f<supportMitarbeiter.length; f++){
+            var htmlElement = "Level0" + f + "name";
+            document.getElementById(htmlElement).textContent = supportMitarbeiter[f].name;
+        }
 
-        //-------------Variablen definieren: Mitarbeiter zur Auswahl (onclick) im Arbeitsbereich-------------//
-        var firstLevelMitarbeiter01 = document.getElementById("firstLevel01");
-        var secondLevelMitarbeiter01 = document.getElementById("secondLevel01");
-        var secondLevelMitarbeiter02 = document.getElementById("secondLevel02");
-        var secondLevelMitarbeiter03 = document.getElementById("secondLevel03");
+        //------Übergabe Mitarbeiter zur Datenanzeige der im Arbeitsbereich angeklickt wurde-----//
+        for (f=0; f<supportMitarbeiter.length; f++) (function(f){
+            var htmlElement = "Level0" + f;
+            document.getElementById(htmlElement).onclick =function(){
+                $.get('infobereich.html', function (data) {
+                    $('#newInfobereich').html(data);
+                    var mitarbeiter = supportMitarbeiter[f];;
+                    MAdatenAnzeigen(mitarbeiter);
+                })
+            }
+        })(f);
 
-        //-------zentrale Methode zur Anzeige der MA-Daten im Infobereich-------//
-        function MAdatenAnzeigen(MAdaten){
+        //-------Methode zur Anzeige der MA-Daten im Infobereich-------//
+        function MAdatenAnzeigen(MAdaten) {
             document.getElementById("MAposition").textContent = MAdaten.position + "-Support";
             document.getElementById("MAname").textContent = "Mitarbeiter: " + MAdaten.name;
             document.getElementById("MAkategorie").textContent = MAdaten.kategorie;
-            //document.getElementById("MAfaehigkeit01").textContent = MAdaten.faehigkeit1;
-            //es fehlen weitere Fähigkeiten anzeigen
-            for(f=1; f<= Object.keys(MAdaten).length; f++){
-                var controlFA = eval("MAdaten.faehigkeit"+f);
-                if(controlFA != undefined){
-                    document.getElementById("MAfaehigkeit0"+f).textContent = controlFA;
+            //alle Fähigkeiten als Liste ausgeben
+            for (f = 1; f <= Object.keys(MAdaten).length; f++) {
+                var MAfaehigkeit = eval("MAdaten.faehigkeit" + f);
+                var MAlevel = eval("MAdaten.level" + f);
+                if (MAfaehigkeit != undefined) {
+                    //erstelle <li> Element je nach Anzahl der Fähigkeiten
+                    var listelement = document.createElement("li");
+                    listelement.textContent = MAfaehigkeit + " (" + MAlevel + ")";
+                    var Ausgabebereich = document.getElementById("MAfaehigkeitenList");
+                    Ausgabebereich.appendChild(listelement);
                 }
             }
-            if(typeof incident  !== "undefined"){
-                document.getElementById("MAaufgabe").textContent = "#" + incident.incID + " " + incident.title;
+            //zu Beginn ist keine Aufgabe zugewiesen
+            document.getElementById("MAaufgabe").textContent = "Es ist keine Aufgabe zugewiesen."
+            //zugeordnete Aufgabe anzeigen
+            for (f = 1; f <= Object.keys(incidents).length; f++) {
+                if (MAdaten.name == MAdaten.zugewiesenerIncident.bearbeiter) {
+                    document.getElementById("MAaufgabe").textContent = "#" + MAdaten.zugewiesenerIncident.incID + " \n " + MAdaten.zugewiesenerIncident.title;
+                }else{
+                    document.getElementById("MAaufgabe").textContent = "Es ist keine Aufgabe zugewiesen."
+                }
             }
-        } 
-
-        //----Datenübergabe des angeklickten MAs------//
-        firstLevelMitarbeiter01.onclick = function (){
-            //Infobereich für Anzeige der MA-Daten laden und Daten anzeigen
-            $.get('infobereich.html', function (data) {
-                $('#newInfobereich').html(data);
-                var mitarbeiter = supportMitarbeiter[0];
-                MAdatenAnzeigen(mitarbeiter);
-            })
-        } 
-        secondLevelMitarbeiter01.onclick = function (){
-            $.get('infobereich.html', function (data) {
-                $('#newInfobereich').html(data);
-                var mitarbeiter = supportMitarbeiter[1];
-                MAdatenAnzeigen(mitarbeiter);
-            })
-        } 
-        secondLevelMitarbeiter02.onclick = function (){
-            $.get('infobereich.html', function (data) {
-                $('#newInfobereich').html(data);
-                var mitarbeiter = supportMitarbeiter[2];
-                MAdatenAnzeigen(mitarbeiter);
-            })
-        }
-        secondLevelMitarbeiter03.onclick = function (){
-            $.get('infobereich.html', function (data) {
-                $('#newInfobereich').html(data);
-                var mitarbeiter = supportMitarbeiter[3];
-                MAdatenAnzeigen(mitarbeiter);
-            })
         } 
 
         //---------------- Funktion um eine Zufallszahl zu generieren -------//
@@ -348,10 +333,9 @@ function changeHTMLGame() {
             //}
         }
 
-        
         //-----------------Incident 1st-Level zuweisen und Daten im Arbeitsbereich anzeigen---------------------//
         var buttonBearbeiten = document.getElementById("btn-bearbeiten"); 
-        buttonBearbeiten.onclick = function () {
+        buttonBearbeiten.onclick = function () { //nur 1st-Level zuweisen
             if (IncFirstBearbeitung == 0){//wenn MA noch keinen Incident bearbeitet
                 supportMitarbeiter[0].zugewiesenerIncident = Incaktuell; //speichere aktuellen Incident für diesen MA
                 document.getElementById("IncTitel").textContent = "#" + supportMitarbeiter[0].zugewiesenerIncident.incID + " " + supportMitarbeiter[0].zugewiesenerIncident.title;
@@ -369,55 +353,49 @@ function changeHTMLGame() {
         //-----------------Incident 2nd-Level zuweisen und Daten im Arbeitsbereich anzeigen---------------------//
         var buttonWeiterleiten = document.getElementById("btn-weiterleiten");
         buttonWeiterleiten.onclick = function () {
-            //--------Vergleich IncidentKategorie mit MA-Kategorie als IDs----------//
-            //-----------Weise Incident dem MA zu, wenn die Kategorien identisch sind und er noch keinen Incident bearbeitet-------------//
-            if (incDetKat.value == supportMitarbeiter[1].kategorieID){
-                if (IncSecBearbeitung01 == 0){//wenn MA noch keinen Incident bearbeitet
-                    supportMitarbeiter[1].zugewiesenerIncident = Incaktuell;//speichere aktuellen Incident für diesen MA
-                    document.getElementById("Sec01IncTitel").textContent = "#" + supportMitarbeiter[1].zugewiesenerIncident.incID + " " + supportMitarbeiter[1].zugewiesenerIncident.title;
-                    document.getElementById("Sec01Faelligkeit").textContent = "<in Bearbeitung> fällig in " + supportMitarbeiter[1].zugewiesenerIncident.faelligkeit + " Runden";
-                    IncBearbeitung(1);
-                    document.getElementById("Sec01Bearbeitungsstand").textContent = "Bearbeitungsstand: 0%";
-                    IncSecBearbeitung01 =1;
-                    IncDatenAendern(Incaktuell.incID,null,"in Bearbeitung",document.getElementById("incDetPrio").value ,null,null,Incaktuell.bearbeitungsdauer,supportMitarbeiter[1].name,document.getElementById("incDetKat").value);
-                    IncRemoveInbox(Incaktuell.incID);
-                }else{//wenn MA bereits einen Incident bearbeitet
-                    alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
+            for (f = 1; f < supportMitarbeiter.length; f++) {
+                //--------Vergleich IncidentKategorie mit MA-Kategorie als IDs----------//
+                if (incDetKat.value == supportMitarbeiter[f].kategorieID) {
+                    var IncSecBearbeitung = eval("IncSecBearbeitung0" + f);
+                    if (IncSecBearbeitung == 0) {//wenn MA noch keinen Incident bearbeitet
+                        //HTML-Elemente
+                        var IncTitle = document.getElementById("Sec0" + f + "IncTitel");
+                        var IncFaelligkeit = document.getElementById("Sec0" + f + "Faelligkeit");
+                        var IncBearbeitungsstand = document.getElementById("Sec0" + f + "Bearbeitungsstand");
+                        //html-Elemente zur Anzeige übergeben
+                        supportMitarbeiter[f].zugewiesenerIncident = Incaktuell;//speichere aktuellen Incident für diesen MA
+                        IncBearbeitungAnzeige(supportMitarbeiter[f].zugewiesenerIncident, IncTitle, IncFaelligkeit, IncBearbeitungsstand);
+                        IncBearbeitung(f);
+                        IncDatenAendern(Incaktuell.incID, null, "in Bearbeitung", document.getElementById("incDetPrio").value, null, null, Incaktuell.bearbeitungsdauer, supportMitarbeiter[f].name, document.getElementById("incDetKat").value);
+                        IncRemoveInbox(Incaktuell.incID);
+                        IncBearbeitungSetzen(f);
+                    } else {
+                        alert("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
+                    }
                 }
-            }else if (incDetKat.value == supportMitarbeiter[2].kategorieID){
-                if (IncSecBearbeitung02 == 0){
-                    supportMitarbeiter[2].zugewiesenerIncident = Incaktuell;//speichere aktuellen Incident für diesen MA
-                    document.getElementById("Sec02IncTitel").textContent = "#" + supportMitarbeiter[2].zugewiesenerIncident.incID + " " + supportMitarbeiter[2].zugewiesenerIncident.title;
-                    document.getElementById("Sec02Faelligkeit").textContent = "<in Bearbeitung> fällig in " + supportMitarbeiter[2].zugewiesenerIncident.faelligkeit + " Runden";
-                    IncBearbeitung(2);
-                    document.getElementById("Sec02Bearbeitungsstand").textContent = "Bearbeitungsstand: 0%";
-                    IncSecBearbeitung02 =1;
-                    IncDatenAendern(Incaktuell.incID,null,"in Bearbeitung",document.getElementById("incDetPrio").value ,null,null,Incaktuell.bearbeitungsdauer,supportMitarbeiter[2].name,document.getElementById("incDetKat").value);
-                    IncRemoveInbox(Incaktuell.incID);
-                }else{
-                    alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
+            }
+
+            //Bearbeitung setzen, da ein Mitarbeiter nur einen Incident bearbeiten darf
+            function IncBearbeitungSetzen(f){
+                if (f==1){
+                    IncSecBearbeitung01 = 1;
+                }else if(f==2){
+                    IncSecBearbeitung02 = 1;
+                }else if(f==3){
+                    IncSecBearbeitung03 = 1;
                 }
-            }else if (incDetKat.value == supportMitarbeiter[3].kategorieID){
-                if (IncSecBearbeitung03 == 0){
-                    supportMitarbeiter[3].zugewiesenerIncident = Incaktuell; //speichere aktuellen Incident für diesen MA
-                    document.getElementById("Sec03IncTitel").textContent = "#" + supportMitarbeiter[3].zugewiesenerIncident.incID + " " + supportMitarbeiter[3].zugewiesenerIncident.title;
-                    document.getElementById("Sec03Faelligkeit").textContent = "<in Bearbeitung> fällig in " + supportMitarbeiter[3].zugewiesenerIncident.faelligkeit + " Runden";
-                    IncBearbeitung(3);
-                    document.getElementById("Sec03Bearbeitungsstand").textContent = "Bearbeitungsstand: 0%";
-                    IncSecBearbeitung03 =1;
-                    IncDatenAendern(Incaktuell.incID,null,"in Bearbeitung",document.getElementById("incDetPrio").value ,null,null,Incaktuell.bearbeitungsdauer,supportMitarbeiter[3].name,document.getElementById("incDetKat").value);
-                    IncRemoveInbox(Incaktuell.incID);
-                }else{
-                    alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
-                }
-            }else{
-                alert("Kategorie stimmt mit MA nicht überein.")
+            }
+
+            //Anzeige Incident in Bearbeitung am Mitarbeiter
+            function IncBearbeitungAnzeige(Inc, IncTitle, IncFaelligkeit, IncBearbeitungsstand){
+            IncTitle.textContent = "#" + Inc.incID + " " + Inc.title;
+            IncFaelligkeit.textContent = "<in Bearbeitung> fällig in " + Inc.faelligkeit + " Runden";
+            IncBearbeitungsstand.textContent = "Bearbeitungsstand: 0%";
             }
 
         }//ENDE Weiterleiten
 
         //-------- Methode um die Faelligkeit zu checken und zu speichern.  ------------------------//
-
         function checkFaelligkeit(SMA){
             var endTime = Date.now();
             var faellig;
@@ -461,7 +439,7 @@ function changeHTMLGame() {
             var start = Date.now();      
             function BerechneBearbeitung() {           
                 var diff = Date.now() - start;
-                var IncBearbeitungsdauer = Incaktuell.bearbeitungsdauer * 10000; //in ms -> Speicherung in DB als InGame Stunden (1h = 10sek = 10000ms)
+                //var IncBearbeitungsdauer = Incaktuell.bearbeitungsdauer * 10000; //in ms -> Speicherung in DB als InGame Stunden (1h = 10sek = 10000ms)
                 if (mitarbeiter == 0){
                     var korrWert = BerechneFaehigkeit(supportMitarbeiter[0]); //korrigierter Wert
                     supportMitarbeiter[0].bearbeitungsstand = prozent_runden((diff/korrWert)*100);
@@ -482,13 +460,12 @@ function changeHTMLGame() {
                 if (diff >= korrWert){
                     checkFaelligkeit(mitarbeiter);
                     clearInterval(timerBearbeitung);
+                    document.getElementById("MAaufgabe").textContent = "Es ist keine Aufgabe zugewiesen."
                 }
             }
             /// ----- Denn Aufruf würde ich über den Spielverlauf Timer machen, damit man eine Bezugsquelle hat. -------------//
             var timerBearbeitung = setInterval(BerechneBearbeitung, 1000);
         }
-
-
 
         function prozent_runden(quelle){
             var wert=Math.round(quelle*10);
