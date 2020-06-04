@@ -147,6 +147,26 @@ function changeHTMLGame() {
         $('body').html(data);
         newIncInbox();
         timer();
+        
+        //----- F5 abpassen -----------------//
+        document.addEventListener('keydown', function(event){
+            if(event.keyCode == 116){
+                logout();
+            }
+          });
+
+        // ------ Beenden Button erweitern -----------//  
+        document.getElementById("logout").onclick = function (){
+            logout();
+        }
+          
+        ///----------------- Spiel beenden --------------///
+        function logout() {
+            var check = confirm('Wollen Sie das Spiel beenden?'); 
+            if (check == true) {
+                changeHTMLAuswertung();
+            }
+          }
         /// Timer Funktion für die Spielrundenberechnung----/
         function timer() {
             // Aufbau  spiel[Datensatz].spielID, spielphase , runde, anfang, ende, inFaelligkeit, ausFaelligkeit, zaehler
@@ -155,18 +175,23 @@ function changeHTMLGame() {
             if(rundNumb == 1 && spiel[0].runden[rundNumb].startTime == 0){
                 spiel[0].runden[rundNumb].startTime = spiel[0].anfang;
             }
+
+            if(document.getElementById("inBox").childNodes.length <= rand(1,4)){
+                newIncInbox();
+            }
             spiel[0].runden[rundNumb].elapsedTime = Date.now() - spiel[0].runden[rundNumb].startTime;
             //var elapsedTime = Date.now() - startTime;
-                if(spiel[0].runden[rundNumb].elapsedTime >= 240000){
+                if(spiel[0].runden[rundNumb].elapsedTime >= 235000){
                     rundNumb++;
                     spiel[0].runde = rundNumb;
                     spiel[0].runden[rundNumb].startTime = Date.now();
                     document.getElementById("runde").innerHTML = "Runde " + rundNumb;
-                    document.getElementById('timer').innerHTML = "0 Std.";
+                    document.getElementById('timer').innerHTML = "<i class='far fa-clock' ></i> 0 Std.";
                     newIncInbox();
                 }else{
-                    document.getElementById('timer').innerHTML = (spiel[0].runden[rundNumb].elapsedTime / 10000).toFixed(0) + " Std.";
+                    document.getElementById('timer').innerHTML =  "<i class='far fa-clock' ></i> " + (spiel[0].runden[rundNumb].elapsedTime / 10000).toFixed(0) + " Std.";                             
                     AktualisiereFaelligkeit();
+
                 }
             }, 10000);
 
@@ -267,8 +292,8 @@ function changeHTMLGame() {
 
         //-------------Methode um Incidentdaten anzuzeigen ------------//
         function IncdatenAnzeigen(daten){
-            if(document.getElementById("noInc").style.visibility=="visible"){
-                document.getElementById("noInc").style.visibility="collapse";
+			if(document.getElementById("noInc") !== null){
+                document.getElementById("incDetHead").removeChild(document.getElementById("noInc"));
                 document.getElementById("incDetForm").style.visibility="visible";
                 document.getElementById("btn-bearbeiten").style.visibility="visible";
                 document.getElementById("btn-weiterleiten").style.visibility="visible";
@@ -282,13 +307,12 @@ function changeHTMLGame() {
             }
             document.getElementById("incDetPrio").value  = daten.prioritaet;
             document.getElementById("incDetKat").value  = daten.kategorie;
-            document.getElementById("incDetBea").innerText = daten.bearbeiter;
+            //document.getElementById("incDetBea").innerText = daten.bearbeiter;
         }
 
         ///-----------------------zentrale Function um Incidentdaten zu ändern -----//
         function IncDatenAendern(incID,erstellungsdatum,status, prioritaet,bearbeitungsstand,kundenzufriedenheit,bearbeitungsdauer, bearbeiter, kategorie){
             for(i=0;i<Object.keys(incidents).length;i++){
-
                 if(incidents[i].incID == incID){
                     if(erstellungsdatum != null ){
                         incidents[i].erstellungsdatum = erstellungsdatum;
@@ -323,22 +347,25 @@ function changeHTMLGame() {
 
         ///--------------------- Function um Incidents aus der InBox zu entfernen -----------//
         function IncRemoveInbox(incID){
-            document.getElementById("inBox").removeChild(document.getElementById(incID));
-            //---- Incident bereich wird ggf. wieder geleert ----/
-            //if(document.getElementById("inBox").childElementCount == 0){
+                var noInc = document.createElement("p");
+                document.getElementById("inBox").removeChild(document.getElementById(incID));
                 document.getElementById("incDetTitel").innerHTML = "";
+                noInc.id = "noInc";
+                noInc.innerHTML = "Aktuell ist kein Incident gewählt.";
+                document.getElementById("incDetHead").appendChild(noInc);
                 document.getElementById("noInc").style.visibility="visible";
                 document.getElementById("incDetForm").style.visibility="hidden";
                 document.getElementById("btn-bearbeiten").style.visibility="hidden";
                 document.getElementById("btn-weiterleiten").style.visibility="hidden";
             //}
         }
-        //--------Logout (manuell)--------//
-        var ButtonLogout = document.getElementById("logout");
-        ButtonLogout.onclick = function () {
-            //es fehlt eine Abfrage "Wollen Sie wirklich beenden?"
-            changeHTMLAuswertung();
-        }
+      
+        // //--------Logout (manuell)--------//
+        // var ButtonLogout = document.getElementById("logout");
+        // ButtonLogout.onclick = function () {
+        //     //es fehlt eine Abfrage "Wollen Sie wirklich beenden?"
+        //     changeHTMLAuswertung();
+        // }
 
         //-----------------Incident 1st-Level zuweisen und Daten im Arbeitsbereich anzeigen---------------------//
         var buttonBearbeiten = document.getElementById("btn-bearbeiten"); 
@@ -412,7 +439,7 @@ function changeHTMLGame() {
                     //Anzeige Incident in Bearbeitung am Mitarbeiter
                     function IncBearbeitungAnzeige(Inc, IncTitle, IncFaelligkeit, IncBearbeitungsstand){
                     IncTitle.textContent = "#" + Inc.incID + " " + Inc.title;
-                    IncFaelligkeit.textContent = "<in Bearbeitung> fällig in " + Inc.faelligkeit + " Runden";
+                    IncFaelligkeit.textContent = "<in Bearbeitung> fällig in " + Inc.faelligkeit + " Std.";
                     IncBearbeitungsstand.textContent = "Bearbeitungsstand: 0%";
                     }
 
@@ -512,31 +539,31 @@ function changeHTMLGame() {
         function BerechneFaehigkeit(mitarbeiter){
             var IncBearbeitungsdauer = Incaktuell.bearbeitungsdauer * 10000; //in ms -> Speicherung in DB als InGame Stunden (1h = 10sek = 10000ms)
             if (Incaktuell.fachlichefaehigkeit == mitarbeiter.faehigkeit1){ //benötigte Fähigkeit = MA-Fähigkeit 01
-                if(mitarbeiter.level1 == 1){
+                if(mitarbeiter.level1 == "Beginner"){
                     var wert = IncBearbeitungsdauer + (IncBearbeitungsdauer/4);
                     return wert; 
-                }else if(mitarbeiter.level1 == 2){
+                }else if(mitarbeiter.level1 == "Gelernter"){
                     var wert = IncBearbeitungsdauer + 0;
                     return wert; 
-                }else if(mitarbeiter.level1 == 3){
+                }else if(mitarbeiter.level1 == "Profi"){
                     var wert = IncBearbeitungsdauer - (IncBearbeitungsdauer/4);
                     return wert; 
-                }else if(mitarbeiter.level1 == 4){
+                }else if(mitarbeiter.level1 == "Experte"){
                     var wert = IncBearbeitungsdauer - (IncBearbeitungsdauer/2);
                     return wert;
                 }
                 //prüfe Level (1)Beginner +25%, (2)Gelernter +0, (3)Profi -25%, (4)Experte -50%
             }else if(Incaktuell.fachlichefaehigkeit == mitarbeiter.faehigkeit2){//benötigte Fähigkeit = MA-Fähigkeit 02
-                if(mitarbeiter.level1 == 1){
+                if(mitarbeiter.level1 == "Beginner"){
                     var wert = IncBearbeitungsdauer + (IncBearbeitungsdauer/4);
                     return wert; 
-                }else if(mitarbeiter.level1 == 2){
+                }else if(mitarbeiter.level1 == "Gelernter"){
                     var wert = IncBearbeitungsdauer + 0;
                     return wert; 
-                }else if(mitarbeiter.level1 == 3){
+                }else if(mitarbeiter.level1 == "Profi"){
                     var wert = IncBearbeitungsdauer - (IncBearbeitungsdauer/4);
                     return wert; 
-                }else if(mitarbeiter.level1 == 4){
+                }else if(mitarbeiter.level1 == "Experte"){
                     var wert = IncBearbeitungsdauer - (IncBearbeitungsdauer/2);
                     return wert;
                 }
@@ -550,7 +577,7 @@ function changeHTMLGame() {
          //---------Methode für neu einzutreffende Incidents in die InBox --- //
         function newIncInbox(){
             var inbox = document.getElementById("inBox");
-            var incMax = rand(6,8); //-------- bis zu maximal 4 neue Incidents ----//
+            var incMax = rand(1,4); //-------- bis zu maximal 4 neue Incidents ----//
             if(inbox.childNodes.length <= 8){ //----- In der Inbox sollen höchstens 4 Incidents sin ---- /
                 var incCount = inbox.childNodes.length;
                 for(var x=0; x<Object.keys(incidents).length;x++){ //--- Schleife die alle Incidents kontrolliert --- //

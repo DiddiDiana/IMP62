@@ -24,7 +24,7 @@
 				<div class="col-md-3">
 					<div>
 						<div>
-							<label class="btn box" id="timer"><i class="far fa-clock" ></i>0 Std.</label>
+							<label class="btn box" id="timer"><i class="far fa-clock" ></i> 0 Std.</label>
 							<!-- JS-Variable eingeben und Spielphase anzeigen -->
 							<label class="form-control spielphase" id="runde"  for="">Runde 1</label>
 						</div>
@@ -115,9 +115,9 @@
 							</div>
 							<!-- Zeigt beim Klick auf ein Incident-Symbol dessen Daten an -->
 							<form class="card-body" >
-								<div class="d-flex">
+								<div class="d-flex" id="incDetHead" >
 									<img src="img/icons8-dokument-64.png">
-									<p id="noInc" style="visibility: visible">Aktuell ist kein Incident gewählt.</p>
+									<p id="noInc">Aktuell ist kein Incident gewählt.</p>
 									<h3 id="incDetTitel"><!--#123 <br>Test-Titel--></h3> <!-- zeigt Incident-ID & -Titel laut DB an -->
 								</div>
 								<ul class="list-group list-group-flush" id="incDetForm" style="visibility: hidden">
@@ -133,9 +133,9 @@
 										<select class="ml-1" name="kategorie" id="incDetKat">
 										</select>
 									</li>
-									<li class="list-group-item d-lg-flex">Bearbeiter:
+									<!--<li class="list-group-item d-lg-flex">Bearbeiter:
 										<p id="incDetBea" class="ml-1">Mitarbeiter A</p>
-									</li>
+									</li>-->
 								</ul>
 								<div class="d-lg-flex justify-content-center">
 									<input type="button" value="bearbeiten" class="btn mr-2 mt-2" id="btn-bearbeiten" style="visibility: hidden"></input>

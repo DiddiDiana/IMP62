@@ -48,11 +48,12 @@ if(isset($_GET['data']) && $_GET['data']=='incidents' )
 }
 if(isset($_GET['data']) && $_GET['data']=='support-mitarbeiter'){
         // Abfrage und zusammensetzung der Infromationen zu den Support-Mitarbeitern
-        $supportMitarbeiter = $verbindung->prepare(" SELECT mitarbeiter.mitarbeiterID, mitarbeiter.name as name, `position`, `kategorie`, kategorie.name as KategorieBezeichnung, fachfaehigkeitzuordnen.fachlicheFaehigkeit as faehigkeitID, faehigkeiten.name as FaehigkeitBezeichnung, fachfaehigkeitzuordnen.level  
+        $supportMitarbeiter = $verbindung->prepare(" SELECT mitarbeiter.mitarbeiterID, mitarbeiter.name as name, `position`, `kategorie`, kategorie.name as KategorieBezeichnung, fachfaehigkeitzuordnen.fachlicheFaehigkeit as faehigkeitID, faehigkeiten.name as FaehigkeitBezeichnung, fachlichefaehigkeiten.bezeichnung  as level
                                                         FROM `mitarbeiter` 
                                                         INNER JOIN `kategorie` on mitarbeiter.kategorie=kategorie.kategorieID
                                                         INNER JOIN `fachfaehigkeitzuordnen` on mitarbeiter.mitarbeiterID=fachfaehigkeitzuordnen.mitarbeiterID 
                                                         INNER JOIN `faehigkeiten` on fachfaehigkeitzuordnen.fachlicheFaehigkeit=faehigkeiten.faehigkeitenID
+                                                        INNER JOIN `fachlichefaehigkeiten` on fachfaehigkeitzuordnen.level=fachlichefaehigkeiten.level
                                                         WHERE `position` ='1st-Level' or `position` ='2nd-Level' 
                                                         ORDER BY mitarbeiter.mitarbeiterID"); 
          // Die vorbereitete Anweisung ausführen
