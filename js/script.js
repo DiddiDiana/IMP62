@@ -9,7 +9,7 @@ var rundNumb = 1;
 //var runden = [];
 
 var Incaktuell; //speichert aktuell gewählten Incident des Incidentbereichs
-var IncFirstBearbeitung = 0; //speichert Bearbeitung des First-Level (zu Beginn leer)
+var IncFirstBearbeitung00 = 0; //speichert Bearbeitung des First-Level (zu Beginn leer)
 var IncSecBearbeitung01 = 0; //speichert Bearbeitung des Second-Level (zu Beginn leer)
 var IncSecBearbeitung02 = 0; //speichert Bearbeitung des Second-Level (zu Beginn leer)
 var IncSecBearbeitung03 = 0; //speichert Bearbeitung des Second-Level (zu Beginn leer) 
@@ -336,64 +336,80 @@ function changeHTMLGame() {
         //-----------------Incident 1st-Level zuweisen und Daten im Arbeitsbereich anzeigen---------------------//
         var buttonBearbeiten = document.getElementById("btn-bearbeiten"); 
         buttonBearbeiten.onclick = function () { //nur 1st-Level zuweisen
-            if (IncFirstBearbeitung == 0){//wenn MA noch keinen Incident bearbeitet
-                supportMitarbeiter[0].zugewiesenerIncident = Incaktuell; //speichere aktuellen Incident für diesen MA
-                document.getElementById("IncTitel").textContent = "#" + supportMitarbeiter[0].zugewiesenerIncident.incID + " " + supportMitarbeiter[0].zugewiesenerIncident.title;
-                document.getElementById("Faelligkeit").textContent = "<in Bearbeitung> fällig in " + supportMitarbeiter[0].zugewiesenerIncident.faelligkeit + " Runden";
-                IncBearbeitung(0);
-                document.getElementById("Bearbeitungsstand").textContent = "Bearbeitungsstand: 0%";
-                IncFirstBearbeitung = 1;
-                IncDatenAendern(Incaktuell.incID,null,"in Bearbeitung",document.getElementById("incDetPrio").value ,null,null,Incaktuell.bearbeitungsdauer,supportMitarbeiter[0].name,document.getElementById("incDetKat").value);
-                IncRemoveInbox(Incaktuell.incID);
-            }else{//wenn MA bereits einen Incident bearbeitet
-                alert ("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
+            for (f = 0; f <= supportMitarbeiter.length; f++) {
+                console.log(supportMitarbeiter[f].position);
+                if (supportMitarbeiter[f].position == "1st-Level") {
+                    //--------Vergleich IncidentKategorie mit MA-Kategorie als IDs----------//
+                    if (incDetKat.value == supportMitarbeiter[f].kategorieID) {
+                        var IncFirstBearbeitung = eval("IncFirstBearbeitung0" + f);
+                        if (IncFirstBearbeitung == 0) {//wenn MA noch keinen Incident bearbeitet
+                            //HTML-Elemente
+                            var IncTitle = document.getElementById("First0" + f + "IncTitel");
+                            var IncFaelligkeit = document.getElementById("First0" + f + "Faelligkeit");
+                            var IncBearbeitungsstand = document.getElementById("First0" + f + "Bearbeitungsstand");
+                            //html-Elemente zur Anzeige übergeben
+                            supportMitarbeiter[f].zugewiesenerIncident = Incaktuell;//speichere aktuellen Incident für diesen MA
+                            IncBearbeitungAnzeige(supportMitarbeiter[f].zugewiesenerIncident, IncTitle, IncFaelligkeit, IncBearbeitungsstand);
+                            IncBearbeitung(f);
+                            IncDatenAendern(Incaktuell.incID, null, "in Bearbeitung", document.getElementById("incDetPrio").value, null, null, Incaktuell.bearbeitungsdauer, supportMitarbeiter[f].name, document.getElementById("incDetKat").value);
+                            IncRemoveInbox(Incaktuell.incID);
+                            IncBearbeitungSetzen(f);
+                        } else {
+                            alert("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
+                        }
+                    }
+                }
             }
         }
 
         //-----------------Incident 2nd-Level zuweisen und Daten im Arbeitsbereich anzeigen---------------------//
         var buttonWeiterleiten = document.getElementById("btn-weiterleiten");
         buttonWeiterleiten.onclick = function () {
-            for (f = 1; f < supportMitarbeiter.length; f++) {
-                //--------Vergleich IncidentKategorie mit MA-Kategorie als IDs----------//
-                if (incDetKat.value == supportMitarbeiter[f].kategorieID) {
-                    var IncSecBearbeitung = eval("IncSecBearbeitung0" + f);
-                    if (IncSecBearbeitung == 0) {//wenn MA noch keinen Incident bearbeitet
-                        //HTML-Elemente
-                        var IncTitle = document.getElementById("Sec0" + f + "IncTitel");
-                        var IncFaelligkeit = document.getElementById("Sec0" + f + "Faelligkeit");
-                        var IncBearbeitungsstand = document.getElementById("Sec0" + f + "Bearbeitungsstand");
-                        //html-Elemente zur Anzeige übergeben
-                        supportMitarbeiter[f].zugewiesenerIncident = Incaktuell;//speichere aktuellen Incident für diesen MA
-                        IncBearbeitungAnzeige(supportMitarbeiter[f].zugewiesenerIncident, IncTitle, IncFaelligkeit, IncBearbeitungsstand);
-                        IncBearbeitung(f);
-                        IncDatenAendern(Incaktuell.incID, null, "in Bearbeitung", document.getElementById("incDetPrio").value, null, null, Incaktuell.bearbeitungsdauer, supportMitarbeiter[f].name, document.getElementById("incDetKat").value);
-                        IncRemoveInbox(Incaktuell.incID);
-                        IncBearbeitungSetzen(f);
-                    } else {
-                        alert("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
+            for (f = 0; f <= supportMitarbeiter.length; f++) {
+                //console.log(supportMitarbeiter[f].position);
+                if (supportMitarbeiter[f].position == "2nd-Level") {
+                    //--------Vergleich IncidentKategorie mit MA-Kategorie als IDs----------//
+                    if (incDetKat.value == supportMitarbeiter[f].kategorieID) {
+                        var IncSecBearbeitung = eval("IncSecBearbeitung0" + f);
+                        if (IncSecBearbeitung == 0) {//wenn MA noch keinen Incident bearbeitet
+                            //HTML-Elemente
+                            var IncTitle = document.getElementById("Sec0" + f + "IncTitel");
+                            var IncFaelligkeit = document.getElementById("Sec0" + f + "Faelligkeit");
+                            var IncBearbeitungsstand = document.getElementById("Sec0" + f + "Bearbeitungsstand");
+                            //html-Elemente zur Anzeige übergeben
+                            supportMitarbeiter[f].zugewiesenerIncident = Incaktuell;//speichere aktuellen Incident für diesen MA
+                            IncBearbeitungAnzeige(supportMitarbeiter[f].zugewiesenerIncident, IncTitle, IncFaelligkeit, IncBearbeitungsstand);
+                            IncBearbeitung(f);
+                            IncDatenAendern(Incaktuell.incID, null, "in Bearbeitung", document.getElementById("incDetPrio").value, null, null, Incaktuell.bearbeitungsdauer, supportMitarbeiter[f].name, document.getElementById("incDetKat").value);
+                            IncRemoveInbox(Incaktuell.incID);
+                            IncBearbeitungSetzen(f);
+                        } else {
+                            alert("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
+                        }
                     }
                 }
             }
 
-            //Bearbeitung setzen, da ein Mitarbeiter nur einen Incident bearbeiten darf
-            function IncBearbeitungSetzen(f){
-                if (f==1){
-                    IncSecBearbeitung01 = 1;
-                }else if(f==2){
-                    IncSecBearbeitung02 = 1;
-                }else if(f==3){
-                    IncSecBearbeitung03 = 1;
-                }
-            }
-
-            //Anzeige Incident in Bearbeitung am Mitarbeiter
-            function IncBearbeitungAnzeige(Inc, IncTitle, IncFaelligkeit, IncBearbeitungsstand){
-            IncTitle.textContent = "#" + Inc.incID + " " + Inc.title;
-            IncFaelligkeit.textContent = "<in Bearbeitung> fällig in " + Inc.faelligkeit + " Runden";
-            IncBearbeitungsstand.textContent = "Bearbeitungsstand: 0%";
-            }
-
         }//ENDE Weiterleiten
+                    //Bearbeitung setzen, da ein Mitarbeiter nur einen Incident bearbeiten darf
+                    function IncBearbeitungSetzen(f){
+                        if(f==0){
+                            IncFirstBearbeitung00 = 1;
+                        }else if (f==1){
+                            IncSecBearbeitung01 = 1;
+                        }else if(f==2){
+                            IncSecBearbeitung02 = 1;
+                        }else if(f==3){
+                            IncSecBearbeitung03 = 1;
+                        }
+                    }
+        
+                    //Anzeige Incident in Bearbeitung am Mitarbeiter
+                    function IncBearbeitungAnzeige(Inc, IncTitle, IncFaelligkeit, IncBearbeitungsstand){
+                    IncTitle.textContent = "#" + Inc.incID + " " + Inc.title;
+                    IncFaelligkeit.textContent = "<in Bearbeitung> fällig in " + Inc.faelligkeit + " Runden";
+                    IncBearbeitungsstand.textContent = "Bearbeitungsstand: 0%";
+                    }
 
         //-------- Methode um die Faelligkeit zu checken und zu speichern.  ------------------------//
         function checkFaelligkeit(SMA){
