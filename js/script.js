@@ -332,6 +332,12 @@ function changeHTMLGame() {
                 document.getElementById("btn-weiterleiten").style.visibility="hidden";
             //}
         }
+        //--------Logout (manuell)--------//
+        var ButtonLogout = document.getElementById("logout");
+        ButtonLogout.onclick = function () {
+            //es fehlt eine Abfrage "Wollen Sie wirklich beenden?"
+            changeHTMLAuswertung();
+        }
 
         //-----------------Incident 1st-Level zuweisen und Daten im Arbeitsbereich anzeigen---------------------//
         var buttonBearbeiten = document.getElementById("btn-bearbeiten"); 
@@ -579,11 +585,80 @@ function changeHTMLGame() {
             }
         }
     })
-    
+
 }//ENDE Game
 
 //-----------Auswertung-----------//
 function changeHTMLAuswertung() {
+//----------erstelle Elemente------------//	
+    //erstelle Body, da der aktuelle ersetzt wird
+    var newMain = document.createElement("div");
+    logo = new Image; //erzeuge Image inkl. Größe
+    var einleitungAuswertung = '<h2>Sie haben das Spiel beendet!</h2><p>Sie sehen eine Übersicht Ihrer Spieldaten.</p>';
+    var pTag = document.createElement("p");
+    
+    var tabelle = document.createElement("ul"); 
+    var zeileIncident01 = document.createElement("li");
+    var Label01 = document.createElement("h6");
+    var AusgabeLabel01 = document.createElement("span");
+
+    var zeileIncident02 = document.createElement("li");
+    var Label02 = document.createElement("h6");
+    var AusgabeLabel02 = document.createElement("span");
+
+    var zeileIncident03 = document.createElement("li");
+    var Label03 = document.createElement("h6");
+    var AusgabeLabel03 = document.createElement("span");  
+
+    var footer = document.createElement("footer");
+    var span = document.createElement("span");
+
+    //------------Klassen--------------//
+    logo.className = "mb-4";
+    footer.className = "footer text-center fixed-bottom p-3";
+    tabelle.className = "card-body col-md-6";
+    zeileIncident01.className = "list-group-item d-flex justify-content-between";
+    zeileIncident02.className = "list-group-item d-flex justify-content-between";
+    zeileIncident03.className = "list-group-item d-flex justify-content-between";
+    AusgabeLabel01.className = ""; 
+
+    //---------weitere Eigenschaften & Bezeichnungen------------//
+    newMain.id = "newMain";
+    logo.src = "/img/Logo_Planspiel.png";
+    span.textContent = "Made by Diana Quaschni and Benjamin Lehnert © 2020";
+    Label01.textContent = "Behobene Incidents gesamt";
+    Label02.textContent = "rechtzeitig behobene Incidents";
+    Label03.textContent = "zu spät gehobene Incidents";
+
+    AusgabeLabel01.textContent = "Test";
+    AusgabeLabel02.textContent = "Test";
+    AusgabeLabel03.textContent = "Test";
+
+    //----------Zuweisungen für Anzeige-----------// 
+    newMain.appendChild(logo);
+    newMain.appendChild(pTag);
+    pTag.innerHTML = einleitungAuswertung;
+
+    zeileIncident01.appendChild(Label01);
+    zeileIncident01.appendChild(AusgabeLabel01);
+    tabelle.appendChild(zeileIncident01);
+
+    zeileIncident02.appendChild(Label02);
+    zeileIncident02.appendChild(AusgabeLabel02);
+    tabelle.appendChild(zeileIncident02);
+
+    zeileIncident03.appendChild(Label03);
+    zeileIncident03.appendChild(AusgabeLabel03); 
+    tabelle.appendChild(zeileIncident03);
+
+    newMain.appendChild(tabelle);
+
+    footer.appendChild(span);
+    newMain.appendChild(footer);
+    
+    //lege Ausgabebereich fest und zeige neuen Main-Inhalt dafür an
+    var Ausgabebereich = document.getElementById("main");
+    Ausgabebereich.parentNode.replaceChild(newMain, Ausgabebereich);
 
 }//ENDE Auswertung
 
