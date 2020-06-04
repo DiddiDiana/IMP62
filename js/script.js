@@ -346,7 +346,7 @@ function changeHTMLGame() {
                 console.log(supportMitarbeiter[f].position);
                 if (supportMitarbeiter[f].position == "1st-Level") {
                     //--------Vergleich IncidentKategorie mit MA-Kategorie als IDs----------//
-                    if (incDetKat.value == supportMitarbeiter[f].kategorieID) {
+                  //  if (incDetKat.value == supportMitarbeiter[f].kategorieID) {
                         var IncFirstBearbeitung = eval("IncFirstBearbeitung0" + f);
                         if (IncFirstBearbeitung == 0) {//wenn MA noch keinen Incident bearbeitet
                             //HTML-Elemente
@@ -363,7 +363,7 @@ function changeHTMLGame() {
                         } else {
                             alert("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
                         }
-                    }
+                    //}
                 }
             }
         }
@@ -435,9 +435,9 @@ function changeHTMLGame() {
                     check = true;
 
                     if(SMA == 0){
-                        document.getElementById("IncTitel").textContent = "";
-                        document.getElementById("Faelligkeit").textContent = "";
-                        document.getElementById("Bearbeitungsstand").textContent = "";
+                        document.getElementById("First00IncTitel").textContent = "";
+                        document.getElementById("First00Faelligkeit").textContent = "";
+                        document.getElementById("First00Bearbeitungsstand").textContent = "";
                         IncFirstBearbeitung = 0;
                     }else{
                         document.getElementById("Sec0"+SMA+"IncTitel").textContent = "";
@@ -465,7 +465,7 @@ function changeHTMLGame() {
                 if (mitarbeiter == 0){
                     var korrWert = BerechneFaehigkeit(supportMitarbeiter[0]); //korrigierter Wert
                     supportMitarbeiter[0].bearbeitungsstand = prozent_runden((diff/korrWert)*100);
-                    document.getElementById("Bearbeitungsstand").textContent = "Bearbeitungsstand: " + supportMitarbeiter[0].bearbeitungsstand; //Ausgabe am First-Level
+                    document.getElementById("First00Bearbeitungsstand").textContent = "Bearbeitungsstand: " + supportMitarbeiter[0].bearbeitungsstand; //Ausgabe am First-Level
                 }else if (mitarbeiter == 1){
                     var korrWert = BerechneFaehigkeit(supportMitarbeiter[1]); //korrigierter Wert
                     supportMitarbeiter[1].bearbeitungsstand = prozent_runden((diff/korrWert)*100);
@@ -585,7 +585,7 @@ function changeHTMLGame() {
             }
         }
     })
-
+    
 }//ENDE Game
 
 //-----------Auswertung-----------//
@@ -630,9 +630,10 @@ function changeHTMLAuswertung() {
     Label02.textContent = "rechtzeitig behobene Incidents";
     Label03.textContent = "zu spät gehobene Incidents";
 
-    AusgabeLabel01.textContent = "Test";
-    AusgabeLabel02.textContent = "Test";
-    AusgabeLabel03.textContent = "Test";
+    var Incgesamt = spiel[0].inFaelligkeit + spiel[0].ausFaelligkeit; 
+    AusgabeLabel01.textContent = Incgesamt + "\t Incidents";
+    AusgabeLabel02.textContent = spiel[0].inFaelligkeit + "\t Incidents";
+    AusgabeLabel03.textContent = spiel[0].ausFaelligkeit + "\t Incidents";
 
     //----------Zuweisungen für Anzeige-----------// 
     newMain.appendChild(logo);
