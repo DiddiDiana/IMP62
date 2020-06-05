@@ -176,7 +176,7 @@ function changeHTMLGame() {
                 spiel[0].runden[rundNumb].startTime = spiel[0].anfang;
             }
 
-            if(document.getElementById("inBox").childNodes.length <= rand(1,4)){
+            if(document.getElementById("inBox").childNodes.length <= rand(1,2) && (spiel[0].runden[rundNumb].elapsedTime / 10000).toFixed(0) % 2 == 1 ){
                 newIncInbox();
             }
             spiel[0].runden[rundNumb].elapsedTime = Date.now() - spiel[0].runden[rundNumb].startTime;
@@ -189,13 +189,13 @@ function changeHTMLGame() {
                     document.getElementById('timer').innerHTML = "<i class='far fa-clock' ></i> 0 Std.";
                     newIncInbox();
                 }else{
-                    document.getElementById('timer').innerHTML =  "<i class='far fa-clock' ></i> " + (spiel[0].runden[rundNumb].elapsedTime / 10000).toFixed(0) + " Std.";                             
-                    AktualisiereFaelligkeit();
-
+                    document.getElementById('timer').innerHTML =  "<i class='far fa-clock' ></i> " + (spiel[0].runden[rundNumb].elapsedTime / 10000).toFixed(0) + " Std.";
+                    updateFaelligkeit();                             
                 }
             }, 10000);
 
         }
+   
 
         //-----------Ausgabe wechseln, wenn kein MA zB beim Start zur Anzeige gewählt ist-------------//
         var Infobereich = 0;
@@ -300,11 +300,8 @@ function changeHTMLGame() {
             }
             document.getElementById("incDetTitel").innerText = "#" + daten.incID + " \n "+ daten.title;
             document.getElementById("incDetThema").innerText = daten.thema;
-            if (daten.faelligkeit == 1){
-                document.getElementById("incDetFaell").innerText = "fällig in " + daten.faelligkeit + " Stunde ";   
-            }else{
-                document.getElementById("incDetFaell").innerText = "fällig in " + daten.faelligkeit + " Stunden ";
-            }
+            document.getElementById("incDetFaell").innerText = "fällig in " + daten.faelligkeit + " Std. ";
+            document.getElementById("incDetFaell").dataset.incID = daten.incID;   
             document.getElementById("incDetPrio").value  = daten.prioritaet;
             document.getElementById("incDetKat").value  = daten.kategorie;
             //document.getElementById("incDetBea").innerText = daten.bearbeiter;
@@ -349,6 +346,7 @@ function changeHTMLGame() {
         function IncRemoveInbox(incID){
                 var noInc = document.createElement("p");
                 document.getElementById("inBox").removeChild(document.getElementById(incID));
+                document.getElementById("incDetFaell").dataset.incID = "";
                 document.getElementById("incDetTitel").innerHTML = "";
                 noInc.id = "noInc";
                 noInc.innerHTML = "Aktuell ist kein Incident gewählt.";
@@ -359,7 +357,6 @@ function changeHTMLGame() {
                 document.getElementById("btn-weiterleiten").style.visibility="hidden";
             //}
         }
-      
         // //--------Logout (manuell)--------//
         // var ButtonLogout = document.getElementById("logout");
         // ButtonLogout.onclick = function () {
@@ -371,26 +368,28 @@ function changeHTMLGame() {
         var buttonBearbeiten = document.getElementById("btn-bearbeiten"); 
         buttonBearbeiten.onclick = function () { //nur 1st-Level zuweisen
             for (f = 0; f <= supportMitarbeiter.length; f++) {
-                if (supportMitarbeiter[f].position == "1st-Level") {
-                    //--------Vergleich IncidentKategorie mit MA-Kategorie als IDs----------//
-                  //  if (incDetKat.value == supportMitarbeiter[f].kategorieID) {
-                        var IncFirstBearbeitung = eval("IncFirstBearbeitung0" + f);
-                        if (IncFirstBearbeitung == 0) {//wenn MA noch keinen Incident bearbeitet
-                            //HTML-Elemente
-                            var IncTitle = document.getElementById("First0" + f + "IncTitel");
-                            var IncFaelligkeit = document.getElementById("First0" + f + "Faelligkeit");
-                            var IncBearbeitungsstand = document.getElementById("First0" + f + "Bearbeitungsstand");
-                            //html-Elemente zur Anzeige übergeben
-                            supportMitarbeiter[f].zugewiesenerIncident = Incaktuell;//speichere aktuellen Incident für diesen MA
-                            IncBearbeitungAnzeige(supportMitarbeiter[f].zugewiesenerIncident, IncTitle, IncFaelligkeit, IncBearbeitungsstand);
-                            IncBearbeitungSetzen(f);
-                            IncBearbeitung(f);
-                            IncDatenAendern(Incaktuell.incID, null, "in Bearbeitung", document.getElementById("incDetPrio").value, null, null, Incaktuell.bearbeitungsdauer, supportMitarbeiter[f].name, document.getElementById("incDetKat").value);
-                            IncRemoveInbox(Incaktuell.incID);
-                        } else {
-                            alert("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
-                        }
-                    //}
+                if(supportMitarbeiter[f] !== undefined){
+                    if (supportMitarbeiter[f].position == "1st-Level") {
+                        //--------Vergleich IncidentKategorie mit MA-Kategorie als IDs----------//
+                    //  if (incDetKat.value == supportMitarbeiter[f].kategorieID) {
+                            var IncFirstBearbeitung = eval("IncFirstBearbeitung0" + f);
+                            if (IncFirstBearbeitung == 0) {//wenn MA noch keinen Incident bearbeitet
+                                //HTML-Elemente
+                                var IncTitle = document.getElementById("First0" + f + "IncTitel");
+                                var IncFaelligkeit = document.getElementById("First0" + f + "Faelligkeit");
+                                var IncBearbeitungsstand = document.getElementById("First0" + f + "Bearbeitungsstand");
+                                //html-Elemente zur Anzeige übergeben
+                                supportMitarbeiter[f].zugewiesenerIncident = Incaktuell;//speichere aktuellen Incident für diesen MA
+                                IncBearbeitungAnzeige(supportMitarbeiter[f].zugewiesenerIncident, IncTitle, IncFaelligkeit, IncBearbeitungsstand);
+                                IncBearbeitungSetzen(f);
+                                IncBearbeitung(f);
+                                IncDatenAendern(Incaktuell.incID, null, "in Bearbeitung", document.getElementById("incDetPrio").value, null, null, Incaktuell.bearbeitungsdauer, supportMitarbeiter[f].name, document.getElementById("incDetKat").value);
+                                IncRemoveInbox(Incaktuell.incID);
+                            } else {
+                                alert("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
+                            }
+                        //}
+                    }
                 }
             }
         }
@@ -399,24 +398,26 @@ function changeHTMLGame() {
         var buttonWeiterleiten = document.getElementById("btn-weiterleiten");
         buttonWeiterleiten.onclick = function () {
             for (f = 0; f <= supportMitarbeiter.length; f++) {
-                if (supportMitarbeiter[f].position == "2nd-Level") {
-                    //--------Vergleich IncidentKategorie mit MA-Kategorie als IDs----------//
-                    if (incDetKat.value == supportMitarbeiter[f].kategorieID) {
-                        var IncSecBearbeitung = eval("IncSecBearbeitung0" + f);
-                        if (IncSecBearbeitung == 0) {//wenn MA noch keinen Incident bearbeitet
-                            //HTML-Elemente
-                            var IncTitle = document.getElementById("Sec0" + f + "IncTitel");
-                            var IncFaelligkeit = document.getElementById("Sec0" + f + "Faelligkeit");
-                            var IncBearbeitungsstand = document.getElementById("Sec0" + f + "Bearbeitungsstand");
-                            //html-Elemente zur Anzeige übergeben
-                            supportMitarbeiter[f].zugewiesenerIncident = Incaktuell;//speichere aktuellen Incident für diesen MA
-                            IncBearbeitungAnzeige(supportMitarbeiter[f].zugewiesenerIncident, IncTitle, IncFaelligkeit, IncBearbeitungsstand);
-                            IncBearbeitungSetzen(f);
-                            IncBearbeitung(f);
-                            IncDatenAendern(Incaktuell.incID, null, "in Bearbeitung", document.getElementById("incDetPrio").value, null, null, Incaktuell.bearbeitungsdauer, supportMitarbeiter[f].name, document.getElementById("incDetKat").value);
-                            IncRemoveInbox(Incaktuell.incID);
-                        } else {
-                            alert("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
+                if(supportMitarbeiter[f] !== undefined){
+                    if (supportMitarbeiter[f].position == "2nd-Level") {
+                        //--------Vergleich IncidentKategorie mit MA-Kategorie als IDs----------//
+                        if (incDetKat.value == supportMitarbeiter[f].kategorieID) {
+                            var IncSecBearbeitung = eval("IncSecBearbeitung0" + f);
+                            if (IncSecBearbeitung == 0) {//wenn MA noch keinen Incident bearbeitet
+                                //HTML-Elemente
+                                var IncTitle = document.getElementById("Sec0" + f + "IncTitel");
+                                var IncFaelligkeit = document.getElementById("Sec0" + f + "Faelligkeit");
+                                var IncBearbeitungsstand = document.getElementById("Sec0" + f + "Bearbeitungsstand");
+                                //html-Elemente zur Anzeige übergeben
+                                supportMitarbeiter[f].zugewiesenerIncident = Incaktuell;//speichere aktuellen Incident für diesen MA
+                                IncBearbeitungAnzeige(supportMitarbeiter[f].zugewiesenerIncident, IncTitle, IncFaelligkeit, IncBearbeitungsstand);
+                                IncBearbeitungSetzen(f);
+                                IncBearbeitung(f);
+                                IncDatenAendern(Incaktuell.incID, null, "in Bearbeitung", document.getElementById("incDetPrio").value, null, null, Incaktuell.bearbeitungsdauer, supportMitarbeiter[f].name, document.getElementById("incDetKat").value);
+                                IncRemoveInbox(Incaktuell.incID);
+                            } else {
+                                alert("Der Mitarbeiter bearbeitet bereits einen Incident."); //Ablehnung, wenn der Mitarbeiter bereits einen Incident bearbeitet
+                            }
                         }
                     }
                 }
@@ -442,16 +443,48 @@ function changeHTMLGame() {
                     IncFaelligkeit.textContent = "<in Bearbeitung> fällig in " + Inc.faelligkeit + " Std.";
                     IncBearbeitungsstand.textContent = "Bearbeitungsstand: 0%";
                     }
+        
+        // ------------------- Faelligkeit aktualisieren ----------//
+        function updateFaelligkeit(){
+            for(var x=0; x<Object.keys(incidents).length;x++){
+                if(incidents[x].status == "neu"){   //--- Kontrolliert, ob der aktuelle Incident noch auf status neu steht---//
+                    for(y=0; y < document.getElementById("inBox").childNodes.length; y++){ //--- Geht alle vorhandenen Incidents in der Inbox durch ---- //
+                        if(document.getElementById("inBox").childNodes[y].id == incidents[x].incID){ /// Vergleich, ob der aktuelle Incidents bereits in der Inbox ist
+                            incidents[x].faelligkeit = incidents[x].faelligkeit - 1;
+                            if(incidents[x].incID == document.getElementById("incDetFaell").dataset.incID ){
+                                document.getElementById("incDetFaell").innerText = "fällig in " + incidents[x].faelligkeit + " Std. ";   
+                            }
+                        }
+                    }
+                }else if(incidents[x].status == "in Bearbeitung"){
+                    incidents[x].faelligkeit = incidents[x].faelligkeit - 1;
+                    for(f = 0; f <= supportMitarbeiter.length; f++){
+                        if(supportMitarbeiter[f] !== undefined && supportMitarbeiter[f].zugewiesenerIncident !== undefined){
+                            if (supportMitarbeiter[f].position == "1st-Level"){
+                                if(supportMitarbeiter[f].zugewiesenerIncident.incID == incidents[x].incID){
+                                    document.getElementById("First0" + f + "Faelligkeit").textContent = "<in Bearbeitung> fällig in " + incidents[x].faelligkeit + " Std.";
+                                }
+                            }else{
+                                if(supportMitarbeiter[f].zugewiesenerIncident.incID == incidents[x].incID){
+                                    document.getElementById("Sec0" + f + "Faelligkeit").textContent = "<in Bearbeitung> fällig in " + incidents[x].faelligkeit + " Std.";;
+                                }
+                            }
+                        }
+                        
+                    }
+                }
+            }
+            
+        } 
 
         //-------- Methode um die Faelligkeit zu checken und zu speichern.  ------------------------//
-        function checkFaelligkeit(SMA){
+        function checkFaelligkeit(SMA,mitNumb){
             var endTime = Date.now();
             var faellig;
             var check = false;
             incidents.forEach(element => {
-                if(element.incID == supportMitarbeiter[SMA].zugewiesenerIncident.incID){
-                    faellig = Math.round((endTime - element.erstellungsdatum) - (element.faelligkeit * 10000));
-                    if(faellig <= 0){
+                if(element.incID == SMA.zugewiesenerIncident.incID){
+                    if(element.faelligkeit >= 0){
                         spiel[0].inFaelligkeit = spiel[0].inFaelligkeit + 1;
                         document.getElementById("good").textContent = spiel[0].inFaelligkeit;
                     }else{
@@ -460,34 +493,27 @@ function changeHTMLGame() {
                     }
                     check = true;
 
-                    if(SMA == 0){
-                        document.getElementById("First00IncTitel").textContent = "";
-                        document.getElementById("First00Faelligkeit").textContent = "";
-                        document.getElementById("First00Bearbeitungsstand").textContent = "";
-                        IncFirstBearbeitung00 = 0;
+                    if(SMA.position == "1st-Level" ){
+                        document.getElementById("First0"+mitNumb+"IncTitel").textContent = "";
+                        document.getElementById("First0"+mitNumb+"Faelligkeit").textContent = "";
+                        document.getElementById("First0"+mitNumb+"Bearbeitungsstand").textContent = "";
+                        window["IncFirstBearbeitung0"+mitNumb] = 0;
                     }else{
-                        document.getElementById("Sec0"+SMA+"IncTitel").textContent = "";
-                        document.getElementById("Sec0"+SMA+"Faelligkeit").textContent = "";
-                        document.getElementById("Sec0"+SMA+"Bearbeitungsstand").textContent = "";
-                        window["IncSecBearbeitung0"+SMA] = 0;
+                        document.getElementById("Sec0"+mitNumb+"IncTitel").textContent = "";
+                        document.getElementById("Sec0"+mitNumb+"Faelligkeit").textContent = "";
+                        document.getElementById("Sec0"+mitNumb+"Bearbeitungsstand").textContent = "";
+                        window["IncSecBearbeitung0"+mitNumb] = 0;
                     }
                     
                 }
                 IncDatenAendern(Incaktuell.incID,null,"erledigt",null ,null,null,null,null,null);
             });
             if(check == true){
-                delete supportMitarbeiter[SMA].zugewiesenerIncident; //speichere aktuellen Incident für diesen MA
+                    delete SMA.zugewiesenerIncident; 
                 check = false;  
             }
             
         }
-
-/*         function AktualisiereFaelligkeit(){
-            for (f=0; f<=incidents.length; f++){
-                incidents[f].faelligkeit = incidents[f].faelligkeit - (spiel[0].runden[rundNumb].elapsedTime / 10000).toFixed(0);
-                console.log(incidents[f].faelligkeit);
-            }
-        } */
 
         //-----Bearbeitung berechnen-----//
         function IncBearbeitung(mitarbeiter){
@@ -513,7 +539,7 @@ function changeHTMLGame() {
                     document.getElementById("Sec03Bearbeitungsstand").textContent = "Bearbeitungsstand: " + supportMitarbeiter[3].bearbeitungsstand; //Ausgabe am Second-Level
                 }
                 if (diff >= korrWert){
-                    checkFaelligkeit(mitarbeiter);
+                    checkFaelligkeit(supportMitarbeiter[mitarbeiter], mitarbeiter);
                     clearInterval(timerBearbeitung);
                     document.getElementById("MAaufgabe").textContent = "Es ist keine Aufgabe zugewiesen."
                 }
@@ -578,7 +604,7 @@ function changeHTMLGame() {
         function newIncInbox(){
             var inbox = document.getElementById("inBox");
             var incMax = rand(1,4); //-------- bis zu maximal 4 neue Incidents ----//
-            if(inbox.childNodes.length <= 8){ //----- In der Inbox sollen höchstens 4 Incidents sin ---- /
+            if(inbox.childNodes.length <= 4){ //----- In der Inbox sollen höchstens 4 Incidents sin ---- /
                 var incCount = inbox.childNodes.length;
                 for(var x=0; x<Object.keys(incidents).length;x++){ //--- Schleife die alle Incidents kontrolliert --- //
                     if(incidents[x].status == "neu"){   //--- Kontrolliert, ob der aktuelle Incident noch auf status neu steht---//
