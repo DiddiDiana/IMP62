@@ -7,7 +7,8 @@ var prio;
 var runde = {startTime: 0, elapsedTime: 0};
 var rundNumb = 1;
 //var runden = [];
-
+var interval;
+var gameEnd = false;
 var Incaktuell; //speichert aktuell gewählten Incident des Incidentbereichs
 var IncFirstBearbeitung00 = 0; //speichert Bearbeitung des First-Level (zu Beginn leer)
 var IncSecBearbeitung01 = 0; //speichert Bearbeitung des Second-Level (zu Beginn leer)
@@ -150,7 +151,7 @@ function changeHTMLGame() {
         
         //----- F5 abpassen -----------------//
         document.addEventListener('keydown', function(event){
-            if(event.keyCode == 116){
+            if(event.keyCode == 116 && gameEnd == false){
                 logout();
             }
           });
@@ -164,6 +165,8 @@ function changeHTMLGame() {
         function logout() {
             var check = confirm('Wollen Sie das Spiel beenden?'); 
             if (check == true) {
+                clearInterval(interval);
+                gameEnd = true;
                 changeHTMLAuswertung();
             }
           }
@@ -171,7 +174,7 @@ function changeHTMLGame() {
         function timer() {
             // Aufbau  spiel[Datensatz].spielID, spielphase , runde, anfang, ende, inFaelligkeit, ausFaelligkeit, zaehler
             //var startTime = Date.now();
-            var interval = setInterval(function() {
+            interval = setInterval(function() {
             if(rundNumb == 1 && spiel[0].runden[rundNumb].startTime == 0){
                 spiel[0].runden[rundNumb].startTime = spiel[0].anfang;
             }
@@ -300,7 +303,11 @@ function changeHTMLGame() {
             }
             document.getElementById("incDetTitel").innerText = "#" + daten.incID + " \n "+ daten.title;
             document.getElementById("incDetThema").innerText = daten.thema;
-            document.getElementById("incDetFaell").innerText = "fällig in " + daten.faelligkeit + " Std. ";
+            if(daten.faelligkeit >= 0){
+                document.getElementById("incDetFaell").innerText = "fällig in " + daten.faelligkeit + " Std. "; 
+            }else{
+                document.getElementById("incDetFaell").innerText = "Fälligkeit überschritten";
+            }
             document.getElementById("incDetFaell").dataset.incID = daten.incID;   
             document.getElementById("incDetPrio").value  = daten.prioritaet;
             document.getElementById("incDetKat").value  = daten.kategorie;
@@ -440,7 +447,12 @@ function changeHTMLGame() {
                     //Anzeige Incident in Bearbeitung am Mitarbeiter
                     function IncBearbeitungAnzeige(Inc, IncTitle, IncFaelligkeit, IncBearbeitungsstand){
                     IncTitle.textContent = "#" + Inc.incID + " " + Inc.title;
-                    IncFaelligkeit.textContent = "<in Bearbeitung> fällig in " + Inc.faelligkeit + " Std.";
+                    if(Inc.faelligkeit >= 0) {
+                        IncFaelligkeit.textContent = "<in Bearbeitung> fällig in " + Inc.faelligkeit + " Std.";
+                    }else{
+                        IncFaelligkeit.textContent = "<in Bearbeitung> Fälligkeit überschritten";
+                    }
+
                     IncBearbeitungsstand.textContent = "Bearbeitungsstand: 0%";
                     }
         
@@ -452,7 +464,11 @@ function changeHTMLGame() {
                         if(document.getElementById("inBox").childNodes[y].id == incidents[x].incID){ /// Vergleich, ob der aktuelle Incidents bereits in der Inbox ist
                             incidents[x].faelligkeit = incidents[x].faelligkeit - 1;
                             if(incidents[x].incID == document.getElementById("incDetFaell").dataset.incID ){
-                                document.getElementById("incDetFaell").innerText = "fällig in " + incidents[x].faelligkeit + " Std. ";   
+                                if(incidents[x].faelligkeit >= 0){
+                                    document.getElementById("incDetFaell").innerText = "fällig in " + incidents[x].faelligkeit + " Std. ";   
+                                }else{
+                                    document.getElementById("incDetFaell").innerText = "Fälligkeit überschritten"; 
+                                }
                             }
                         }
                     }
@@ -462,11 +478,19 @@ function changeHTMLGame() {
                         if(supportMitarbeiter[f] !== undefined && supportMitarbeiter[f].zugewiesenerIncident !== undefined){
                             if (supportMitarbeiter[f].position == "1st-Level"){
                                 if(supportMitarbeiter[f].zugewiesenerIncident.incID == incidents[x].incID){
-                                    document.getElementById("First0" + f + "Faelligkeit").textContent = "<in Bearbeitung> fällig in " + incidents[x].faelligkeit + " Std.";
+                                    if(incidents[x].faelligkeit >= 0){
+                                        document.getElementById("First0" + f + "Faelligkeit").textContent = "<in Bearbeitung> fällig in " + incidents[x].faelligkeit + " Std.";
+                                    }else{
+                                        document.getElementById("First0" + f + "Faelligkeit").textContent = "<in Bearbeitung> Fälligkeit überschritten";
+                                    }
                                 }
                             }else{
                                 if(supportMitarbeiter[f].zugewiesenerIncident.incID == incidents[x].incID){
-                                    document.getElementById("Sec0" + f + "Faelligkeit").textContent = "<in Bearbeitung> fällig in " + incidents[x].faelligkeit + " Std.";;
+                                    if(incidents[x].faelligkeit >= 0){
+                                        document.getElementById("Sec0" + f + "Faelligkeit").textContent = "<in Bearbeitung> fällig in " + incidents[x].faelligkeit + " Std.";
+                                    }else{
+                                        document.getElementById("Sec0" + f + "Faelligkeit").textContent = "<in Bearbeitung> Fälligkeit überschritten";
+                                    }
                                 }
                             }
                         }
