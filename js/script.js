@@ -7,7 +7,8 @@ var prio;
 var runde = {startTime: 0, elapsedTime: 0};
 var rundNumb = 1;
 //var runden = [];
-
+var interval;
+var gameEnd = false;
 var Incaktuell; //speichert aktuell gewählten Incident des Incidentbereichs
 var IncFirstBearbeitung00 = 0; //speichert Bearbeitung des First-Level (zu Beginn leer)
 var IncSecBearbeitung01 = 0; //speichert Bearbeitung des Second-Level (zu Beginn leer)
@@ -150,7 +151,7 @@ function changeHTMLGame() {
         
         //----- F5 abpassen -----------------//
         document.addEventListener('keydown', function(event){
-            if(event.keyCode == 116){
+            if(event.keyCode == 116 && gameEnd == false){
                 logout();
             }
           });
@@ -164,6 +165,8 @@ function changeHTMLGame() {
         function logout() {
             var check = confirm('Wollen Sie das Spiel beenden?'); 
             if (check == true) {
+                clearInterval(interval);
+                gameEnd = true;
                 changeHTMLAuswertung();
             }
           }
@@ -171,7 +174,7 @@ function changeHTMLGame() {
         function timer() {
             // Aufbau  spiel[Datensatz].spielID, spielphase , runde, anfang, ende, inFaelligkeit, ausFaelligkeit, zaehler
             //var startTime = Date.now();
-            var interval = setInterval(function() {
+            interval = setInterval(function() {
             if(rundNumb == 1 && spiel[0].runden[rundNumb].startTime == 0){
                 spiel[0].runden[rundNumb].startTime = spiel[0].anfang;
             }
@@ -300,7 +303,11 @@ function changeHTMLGame() {
             }
             document.getElementById("incDetTitel").innerText = "#" + daten.incID + " \n "+ daten.title;
             document.getElementById("incDetThema").innerText = daten.thema;
-            document.getElementById("incDetFaell").innerText = "fällig in " + daten.faelligkeit + " Std. ";
+            if(daten.faelligkeit >= 0){
+                document.getElementById("incDetFaell").innerText = "fällig in " + daten.faelligkeit + " Std. "; 
+            }else{
+                document.getElementById("incDetFaell").innerText = "Fälligkeit überschritten";
+            }
             document.getElementById("incDetFaell").dataset.incID = daten.incID;   
             document.getElementById("incDetPrio").value  = daten.prioritaet;
             document.getElementById("incDetKat").value  = daten.kategorie;
@@ -382,7 +389,7 @@ function changeHTMLGame() {
                                 supportMitarbeiter[f].zugewiesenerIncident = Incaktuell;//speichere aktuellen Incident für diesen MA
                                 IncBearbeitungAnzeige(supportMitarbeiter[f].zugewiesenerIncident, IncTitle, IncFaelligkeit, IncBearbeitungsstand);
                                 IncBearbeitungSetzen(f);
-                                IncBearbeitung(f);
+                                IncBearbeitung(f, supportMitarbeiter[f].zugewiesenerIncident);
                                 IncDatenAendern(Incaktuell.incID, null, "in Bearbeitung", document.getElementById("incDetPrio").value, null, null, Incaktuell.bearbeitungsdauer, supportMitarbeiter[f].name, document.getElementById("incDetKat").value);
                                 IncRemoveInbox(Incaktuell.incID);
                             } else {
@@ -412,7 +419,7 @@ function changeHTMLGame() {
                                 supportMitarbeiter[f].zugewiesenerIncident = Incaktuell;//speichere aktuellen Incident für diesen MA
                                 IncBearbeitungAnzeige(supportMitarbeiter[f].zugewiesenerIncident, IncTitle, IncFaelligkeit, IncBearbeitungsstand);
                                 IncBearbeitungSetzen(f);
-                                IncBearbeitung(f);
+                                IncBearbeitung(f, supportMitarbeiter[f].zugewiesenerIncident);
                                 IncDatenAendern(Incaktuell.incID, null, "in Bearbeitung", document.getElementById("incDetPrio").value, null, null, Incaktuell.bearbeitungsdauer, supportMitarbeiter[f].name, document.getElementById("incDetKat").value);
                                 IncRemoveInbox(Incaktuell.incID);
                             } else {
@@ -440,7 +447,12 @@ function changeHTMLGame() {
                     //Anzeige Incident in Bearbeitung am Mitarbeiter
                     function IncBearbeitungAnzeige(Inc, IncTitle, IncFaelligkeit, IncBearbeitungsstand){
                     IncTitle.textContent = "#" + Inc.incID + " " + Inc.title;
-                    IncFaelligkeit.textContent = "<in Bearbeitung> fällig in " + Inc.faelligkeit + " Std.";
+                    if(Inc.faelligkeit >= 0) {
+                        IncFaelligkeit.textContent = "<in Bearbeitung> fällig in " + Inc.faelligkeit + " Std.";
+                    }else{
+                        IncFaelligkeit.textContent = "<in Bearbeitung> Fälligkeit überschritten";
+                    }
+
                     IncBearbeitungsstand.textContent = "Bearbeitungsstand: 0%";
                     }
         
@@ -452,7 +464,11 @@ function changeHTMLGame() {
                         if(document.getElementById("inBox").childNodes[y].id == incidents[x].incID){ /// Vergleich, ob der aktuelle Incidents bereits in der Inbox ist
                             incidents[x].faelligkeit = incidents[x].faelligkeit - 1;
                             if(incidents[x].incID == document.getElementById("incDetFaell").dataset.incID ){
-                                document.getElementById("incDetFaell").innerText = "fällig in " + incidents[x].faelligkeit + " Std. ";   
+                                if(incidents[x].faelligkeit >= 0){
+                                    document.getElementById("incDetFaell").innerText = "fällig in " + incidents[x].faelligkeit + " Std. ";   
+                                }else{
+                                    document.getElementById("incDetFaell").innerText = "Fälligkeit überschritten"; 
+                                }
                             }
                         }
                     }
@@ -462,11 +478,19 @@ function changeHTMLGame() {
                         if(supportMitarbeiter[f] !== undefined && supportMitarbeiter[f].zugewiesenerIncident !== undefined){
                             if (supportMitarbeiter[f].position == "1st-Level"){
                                 if(supportMitarbeiter[f].zugewiesenerIncident.incID == incidents[x].incID){
-                                    document.getElementById("First0" + f + "Faelligkeit").textContent = "<in Bearbeitung> fällig in " + incidents[x].faelligkeit + " Std.";
+                                    if(incidents[x].faelligkeit >= 0){
+                                        document.getElementById("First0" + f + "Faelligkeit").textContent = "<in Bearbeitung> fällig in " + incidents[x].faelligkeit + " Std.";
+                                    }else{
+                                        document.getElementById("First0" + f + "Faelligkeit").textContent = "<in Bearbeitung> Fälligkeit überschritten";
+                                    }
                                 }
                             }else{
                                 if(supportMitarbeiter[f].zugewiesenerIncident.incID == incidents[x].incID){
-                                    document.getElementById("Sec0" + f + "Faelligkeit").textContent = "<in Bearbeitung> fällig in " + incidents[x].faelligkeit + " Std.";;
+                                    if(incidents[x].faelligkeit >= 0){
+                                        document.getElementById("Sec0" + f + "Faelligkeit").textContent = "<in Bearbeitung> fällig in " + incidents[x].faelligkeit + " Std.";
+                                    }else{
+                                        document.getElementById("Sec0" + f + "Faelligkeit").textContent = "<in Bearbeitung> Fälligkeit überschritten";
+                                    }
                                 }
                             }
                         }
@@ -516,25 +540,25 @@ function changeHTMLGame() {
         }
 
         //-----Bearbeitung berechnen-----//
-        function IncBearbeitung(mitarbeiter){
+        function IncBearbeitung(mitarbeiter, MAincident){
             var start = Date.now();      
             function BerechneBearbeitung() {           
                 var diff = Date.now() - start;
                 //var IncBearbeitungsdauer = Incaktuell.bearbeitungsdauer * 10000; //in ms -> Speicherung in DB als InGame Stunden (1h = 10sek = 10000ms)
                 if (mitarbeiter == 0){
-                    var korrWert = BerechneFaehigkeit(supportMitarbeiter[0]); //korrigierter Wert
+                    var korrWert = BerechneFaehigkeit(supportMitarbeiter[0], MAincident); //korrigierter Wert
                     supportMitarbeiter[0].bearbeitungsstand = prozent_runden((diff/korrWert)*100);
                     document.getElementById("First00Bearbeitungsstand").textContent = "Bearbeitungsstand: " + supportMitarbeiter[0].bearbeitungsstand; //Ausgabe am First-Level
                 }else if (mitarbeiter == 1){
-                    var korrWert = BerechneFaehigkeit(supportMitarbeiter[1]); //korrigierter Wert
+                    var korrWert = BerechneFaehigkeit(supportMitarbeiter[1],MAincident); //korrigierter Wert
                     supportMitarbeiter[1].bearbeitungsstand = prozent_runden((diff/korrWert)*100);
                     document.getElementById("Sec01Bearbeitungsstand").textContent = "Bearbeitungsstand: " + supportMitarbeiter[1].bearbeitungsstand; //Ausgabe am Second-Level
                 }else if (mitarbeiter == 2){
-                    var korrWert = BerechneFaehigkeit(supportMitarbeiter[2]); //korrigierter Wert
+                    var korrWert = BerechneFaehigkeit(supportMitarbeiter[2], MAincident); //korrigierter Wert
                     supportMitarbeiter[2].bearbeitungsstand = prozent_runden((diff/korrWert)*100);
                     document.getElementById("Sec02Bearbeitungsstand").textContent = "Bearbeitungsstand: " + supportMitarbeiter[2].bearbeitungsstand; //Ausgabe am Second-Level
                 }else if (mitarbeiter == 3){
-                    var korrWert = BerechneFaehigkeit(supportMitarbeiter[3]); //korrigierter Wert
+                    var korrWert = BerechneFaehigkeit(supportMitarbeiter[3], MAincident); //korrigierter Wert
                     supportMitarbeiter[3].bearbeitungsstand = prozent_runden((diff/korrWert)*100);
                     document.getElementById("Sec03Bearbeitungsstand").textContent = "Bearbeitungsstand: " + supportMitarbeiter[3].bearbeitungsstand; //Ausgabe am Second-Level
                 }
@@ -562,9 +586,10 @@ function changeHTMLGame() {
              }
         } 
 
-        function BerechneFaehigkeit(mitarbeiter){
-            var IncBearbeitungsdauer = Incaktuell.bearbeitungsdauer * 10000; //in ms -> Speicherung in DB als InGame Stunden (1h = 10sek = 10000ms)
-            if (Incaktuell.fachlichefaehigkeit == mitarbeiter.faehigkeit1){ //benötigte Fähigkeit = MA-Fähigkeit 01
+        function BerechneFaehigkeit(mitarbeiter, MAincident){
+            var IncBearbeitungsdauer = MAincident.bearbeitungsdauer * 10000; //in ms -> Speicherung in DB als InGame Stunden (1h = 10sek = 10000ms)
+            console.log(IncBearbeitungsdauer);
+            if (MAincident.fachlichefaehigkeit == mitarbeiter.faehigkeit1){ //benötigte Fähigkeit = MA-Fähigkeit 01
                 if(mitarbeiter.level1 == "Beginner"){
                     var wert = IncBearbeitungsdauer + (IncBearbeitungsdauer/4);
                     return wert; 
@@ -579,7 +604,7 @@ function changeHTMLGame() {
                     return wert;
                 }
                 //prüfe Level (1)Beginner +25%, (2)Gelernter +0, (3)Profi -25%, (4)Experte -50%
-            }else if(Incaktuell.fachlichefaehigkeit == mitarbeiter.faehigkeit2){//benötigte Fähigkeit = MA-Fähigkeit 02
+            }else if(MAincident.fachlichefaehigkeit == mitarbeiter.faehigkeit2){//benötigte Fähigkeit = MA-Fähigkeit 02
                 if(mitarbeiter.level1 == "Beginner"){
                     var wert = IncBearbeitungsdauer + (IncBearbeitungsdauer/4);
                     return wert; 
