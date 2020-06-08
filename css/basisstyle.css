@@ -22,6 +22,7 @@ footer{
   color: #fff;
   background-color: #336666;
   border-color: #336666;
+  font-size: 18px;
 }
 
 .box:hover{
@@ -30,8 +31,13 @@ footer{
 
 .spielphase{
   border: 1px solid #d3d3d3;
-  display: inline;
+  display: inline-block;
   width: auto;
+  font-size: 18px;
+  vertical-align: middle;
+}
+#bad, #good{
+  font-size: 18px;
 }
 
 .card-title{
@@ -42,8 +48,12 @@ footer{
   text-align: center;
 }
 
+.card, .list-group-item{
+  border: 1px solid #d3d3d3;
+}
+
 .card-body{
-  border: 1px solid;
+  border: 1px solid #a9a9a9;
   margin: 20px 0 20px 0;
 }
 
